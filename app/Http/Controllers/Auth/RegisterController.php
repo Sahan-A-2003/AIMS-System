@@ -13,7 +13,7 @@ class RegisterController extends Controller
 
     public function store(Request $request)
     {
-        
+      try {  
         
         $request->validate([
             'firstName' => 'required|string|max:100',
@@ -42,5 +42,12 @@ class RegisterController extends Controller
         ]);
 
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+
+            } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Something went wrong',
+            'message' => $e->getMessage()
+        ], 500);
+    }
     }
 }
