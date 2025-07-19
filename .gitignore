@@ -22,3 +22,40 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Laravel specific
+/storage/debugbar/*.json
+/storage/logs/*.log
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*.php
+/storage
+
+# Laravel Mix (if used)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Laravel Sail
+docker-compose.override.yml
+
+# Database files (if using SQLite)
+*.sqlite
+*.sqlite3
+
+# PHPStorm or other IDEs (if not already added)
+.idea/
+
+# MacOS specific
+Icon?
+
+# Windows specific
+Desktop.ini
+
+# JetBrains Rider
+.idea/
+.idea_modules/
+
+# PHPUnit Coverage
+coverage/
