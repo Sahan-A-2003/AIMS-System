@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  color-scheme: light dark;
+  --orange-color: #FF6500;
+  --light-black-color: #0B192C;
+  --white-color: #fff;
+  --dark-blue-color: #1E3E62;
+  --black-color: #000;
+  --gray-color: #878484;
+  --light-gray-color: #EEEEEE;
+  --dark-black-color: #242424;
+  --light-cremme-color: #EFEDE0;
+}
+
+.font-alexandria {
+  font-family: 'Alexandria', sans-serif;
+}
+
+/*Animation*/
+@keyframes slideUpFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up-fade-in {
+  animation: slideUpFadeIn 1.5s ease forwards;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.input-style {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #6b7280; 
+  border-radius: 0.375rem;
+  background-color: transparent !important;
+  color: white;
+}
+
+.input-style:focus,
+.input-style:active,
+.input-style:focus-visible,
+.input-style:focus-within {
+  background-color: transparent !important;
+  outline: none;
+}
+
+.input-style::placeholder {
+  color: #9ca3af; 
+}
