@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { FaBars, FaTimes } from 'react-icons/fa';
 
 const Navbar = () => {
-
   const [menuOpen, setMenuOpen] = useState(false);
+  const { auth } = usePage().props;
+  const user = auth?.user;
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -93,13 +94,27 @@ const Navbar = () => {
           </li>
         </ul> 
 
-        {/* Get Started Button (Desktop Only) */}
-        <Link
-          href={route('login')}
-          className="hidden md:inline-block bg-[var(--orange-color)] text-black font-semibold py-2 px-5 rounded-3xl hover:opacity-90 transition duration-300 text-center"
-        >
-          Get Started
-        </Link>
+        {/* Authentication Button (Desktop Only) */}
+        {user ? (
+          <div className="hidden md:flex items-center gap-4">
+            <span className="text-white text-sm">Welcome, {user.name}</span>
+            <Link
+              href={route('logout')}
+              method="post"
+              as="button"
+              className="bg-red-600 text-white font-semibold py-2 px-5 rounded-3xl hover:opacity-90 transition duration-300 text-center"
+            >
+              Logout
+            </Link>
+          </div>
+        ) : (
+          <Link
+            href={route('login')}
+            className="hidden md:inline-block bg-[var(--orange-color)] text-black font-semibold py-2 px-5 rounded-3xl hover:opacity-90 transition duration-300 text-center"
+          >
+            Get Started
+          </Link>
+        )}
 
         {/* Hamburger Icon */}
         <button onClick={toggleMenu} className="md:hidden text-2xl text-white z-50 relative">
@@ -137,12 +152,27 @@ const Navbar = () => {
             <Link href={route('faqs')} onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">FAQs</Link>
           </div>
 
-          <button
-            onClick={toggleMenu}
-            className="mt-6 bg-[var(--orange-color)] text-black font-semibold py-2 px-5 rounded-3xl hover:opacity-90 transition duration-300"
-          >
-            Get Started
-          </button>
+          {user ? (
+            <div className="mt-6 space-y-2">
+              <div className="text-sm text-gray-300">Welcome, {user.name}</div>
+              <Link
+                href={route('logout')}
+                method="post"
+                as="button"
+                onClick={toggleMenu}
+                className="w-full bg-red-600 text-white font-semibold py-2 px-5 rounded-3xl hover:opacity-90 transition duration-300 text-center"
+              >
+                Logout
+              </Link>
+            </div>
+          ) : (
+            <button
+              onClick={toggleMenu}
+              className="mt-6 bg-[var(--orange-color)] text-black font-semibold py-2 px-5 rounded-3xl hover:opacity-90 transition duration-300"
+            >
+              Get Started
+            </button>
+          )}
         </div>
       </div>
     </nav>
