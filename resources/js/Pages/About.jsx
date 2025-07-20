@@ -272,7 +272,7 @@ const scrollTo = (id) => {
               <p>support@aims-system.com</p>
             </a>
 
-            <a data-aos="fade-left" data-aos-delay="200" href="/contact" className="flex items-center gap-3 hover:underline">
+            <a data-aos="fade-left" data-aos-delay="200" href={route('contact')} className="flex items-center gap-3 hover:underline">
               <img src='/icons/location.svg' alt="location" className="w-6 h-6 filter invert" />
               <p>Colombo, Sri Lanka</p>
             </a>

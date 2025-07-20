@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { router } from '@inertiajs/react';
 
 // Dummy data - in real app, get from props, route state, or API
 const complaintData = {
@@ -23,7 +23,7 @@ const ManagerRequestForm = () => {
   const [reason, setReason] = useState('');
   const [managerComment, setManagerComment] = useState('');
 
-   const navigate = useNavigate();
+   // Navigation handled by Inertia router
 
 
   useEffect(() => {
@@ -124,7 +124,7 @@ const ManagerRequestForm = () => {
         {/* Manager Approval Actions */}
         <div className="flex justify-end gap-4 mt-8">
           <button
-            onClick={() => navigate(-1)} // Goes back to the previous page
+                            onClick={() => router.visit('/complaints')} // Goes back to complaints page
             className="px-6 py-2 border border-gray-400 rounded-md text-gray-600 hover:bg-gray-100 transition"
           >
             Cancel

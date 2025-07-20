@@ -25,8 +25,8 @@ const EscalationForm = () => {
   };
 
   const handleCancel = () => {
-  router.visit(route('complaint.details', { id }));
-};
+    router.visit(route('complaint.details', { id }));
+  };
   return (
     <div className="w-full py-7 bg-white">
       <div className="p-6 max-w-2xl bg-white mx-auto text-black rounded-2xl shadow-xl">

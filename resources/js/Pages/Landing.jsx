@@ -22,12 +22,12 @@ const Landing = () => {
             <span className="font-semibold text-[var(--orange-color)]">Centralized Complaint Management System</span> Seamlessly report issues and stay informed as they move through every stage of resolution.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/sing-in">
+            <Link href={route('login')}>
               <button className="bg-[var(--white-color)] cursor-pointer text-black font-semibold py-3 px-6 rounded-3xl hover:bg-[var(--orange-color)] transition duration-300 hover:border-[var(--orange-color)]">
                 Get Started
               </button>
             </Link>
-            <Link href="/worke">
+            <Link href={route('worke')}>
               <button className="bg-transparent cursor-pointer border border-[var(--white-color)] text-[var(--white-color)] font-semibold py-3 px-6 rounded-3xl hover:bg-[var(--orange-color)] hover:text-black transition duration-300 hover:border-[var(--orange-color)]">
                 Learn More
               </button>
@@ -58,7 +58,7 @@ const Landing = () => {
               complaint form. Submissions are securely stored and instantly routed to the
               appropriate support agents for review.
             </p>
-            <Link href="/complaints">
+            <Link href={route('complaints')}>
               <button className="px-6 py-3 my-5 bg-black font-semibold text-white rounded-3xl hover:bg-[var(--orange-color)] hover:text-black transition duration-200 cursor-pointer">
                 Submit Complaints
               </button>
@@ -123,7 +123,7 @@ const Landing = () => {
         <div data-aos="fade-right" className="w-full bg-[var(--dark-blue-color)] text-center cursor-default flex flex-col items-center justify-center py-10 gap-4">
           <h2 data-aos="fade-left" data-aos-delay="100" className="text-white text-3xl font-semibold">Have an issue to report?</h2>
           <h2 data-aos="fade-left" data-aos-delay="150" className="text-white text-2xl">Start by logging into your account.</h2>
-          <Link href="/sing-in">
+          <Link href={route('login')}>
             <button
               data-aos="fade-left"
               data-aos-delay="200"

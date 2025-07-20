@@ -6,29 +6,29 @@ const Footer = () => {
     <footer className="bg-[var(--light-black-color)] text-white px-6 md:px-16 py-10">
       {/* Top: Logo and Navigation */}
       <div className="flex flex-col lg:flex-row justify-between items-center gap-8 mb-10 flex-wrap">
-        <a href="/">
+        <a href={route('landing')}>
           <img src="/images/Logo.svg" alt="AIMS Logo" className="w-48 cursor-pointer" />
         </a>
 
         <div className="w-full lg:w-auto relative">
           <ul className="flex flex-wrap justify-center lg:justify-end gap-6 text-base font-medium pb-4">
             <li>
-              <Link to="/" className="hover:text-[var(--orange-color)] transition-colors duration-300">
+              <Link href={route('landing')} className="hover:text-[var(--orange-color)] transition-colors duration-300">
                 Home
               </Link>
             </li>
             <li>
-              <Link to="/about" className="hover:text-[var(--orange-color)] transition-colors duration-300">
+              <Link href={route('about')} className="hover:text-[var(--orange-color)] transition-colors duration-300">
                 About
               </Link>
             </li>
             <li>
-              <Link to="/how-it-works" className="hover:text-[var(--orange-color)] transition-colors duration-300">
+              <Link href={route('worke')} className="hover:text-[var(--orange-color)] transition-colors duration-300">
                 How It Works
               </Link>
             </li>
             <li>
-              <Link to="/blog" className="hover:text-[var(--orange-color)] transition-colors duration-300">
+              <Link href={route('blog')} className="hover:text-[var(--orange-color)] transition-colors duration-300">
                 Blog
               </Link>
             </li>
@@ -61,11 +61,11 @@ const Footer = () => {
         <div className="flex-1 min-w-[200px] px-4">
           <h3 className="font-bold text-white mb-4">Help & Support</h3>
           <ul className="space-y-2 text-gray-300">
-            <li><Link to="/contact" className='hover:text-[var(--orange-color)] transition-colors duration-300'>Contact Us</Link></li>
-            <li><Link to="/faq" className='hover:text-[var(--orange-color)] transition-colors duration-300'>FAQs</Link></li>
-            <li><Link to="/feedback" className='hover:text-[var(--orange-color)] transition-colors duration-300'>Feedback</Link></li>
-            <li><Link to="/privacy-policy" className='hover:text-[var(--orange-color)] transition-colors duration-300'>Privacy Policy</Link></li>
-            <li><Link to="/terms" className='hover:text-[var(--orange-color)] transition-colors duration-300'>Terms & Conditions</Link></li>
+            <li><Link href={route('contact')} className='hover:text-[var(--orange-color)] transition-colors duration-300'>Contact Us</Link></li>
+            <li><Link href={route('faqs')} className='hover:text-[var(--orange-color)] transition-colors duration-300'>FAQs</Link></li>
+            <li><Link href={route('feedback')} className='hover:text-[var(--orange-color)] transition-colors duration-300'>Feedback</Link></li>
+            <li><Link href="#" className='hover:text-[var(--orange-color)] transition-colors duration-300'>Privacy Policy</Link></li>
+            <li><Link href="#" className='hover:text-[var(--orange-color)] transition-colors duration-300'>Terms & Conditions</Link></li>
           </ul>
         </div>
 
@@ -73,8 +73,8 @@ const Footer = () => {
         <div className="flex-1 min-w-[200px] px-4">
           <h3 className="font-bold text-white mb-4">System Access</h3>
           <ul className="space-y-2 text-gray-300">
-            <li><Link to="/login" className='hover:text-[var(--orange-color)] transition-colors duration-300'>Login</Link></li>
-            <li><Link to="/register" className='hover:text-[var(--orange-color)] transition-colors duration-300'>Register</Link></li>
+            <li><Link href={route('login')} className='hover:text-[var(--orange-color)] transition-colors duration-300'>Login</Link></li>
+            <li><Link href={route('register')} className='hover:text-[var(--orange-color)] transition-colors duration-300'>Register</Link></li>
           </ul>
         </div>
       </div>

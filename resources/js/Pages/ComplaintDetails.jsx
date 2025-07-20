@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';    
+import { Link, router } from '@inertiajs/react';    
 import { usePage } from '@inertiajs/react';                                                                  
 
 const dummyComplaints = [
@@ -58,7 +58,7 @@ const ComplaintDetails = () => {
   };
 
   const handleEscalate = () => {
-    router.visit(`/escalate/${complaint.id}`);
+    router.visit(route('complaint.escalate', complaint.id));
   };
 
   const handleComplete = () => {
@@ -134,7 +134,7 @@ const ComplaintDetails = () => {
             </button>
 
             <Link
-              href={route('complaint.details', complaint.id)}
+              href={route('complaint.escalate', complaint.id)}
               className="bg-yellow-500 text-white font-semibold px-5 py-2 rounded-md hover:bg-yellow-600 transition inline-block text-center"
             >
               Escalate Complaint

@@ -60,7 +60,7 @@ const Login = () => {
             <p className="text-sm text-center text-white mt-4">
               Don’t have an account?{' '}
               <a
-                href="/request-register"
+                href="/register"
                 className="text-orange-400 hover:underline font-medium"
               >
                 Request from admin

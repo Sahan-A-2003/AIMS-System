@@ -16,30 +16,30 @@ const Navbar = () => {
 
         {/* Logo and Brand */}
         <div className="flex items-center gap-4">
-          <a href="/">
-            <img src="/icons/Logo.svg" alt="AIMS Logo" className="h-8 cursor-pointer" />
-          </a>
+                  <a href={route('landing')}>
+          <img src="/icons/Logo.svg" alt="AIMS Logo" className="h-8 cursor-pointer" />
+        </a>
           <p className="text-3xl text-white font-semibold cursor-pointer">AIMS</p>
         </div>
 
         <ul className="hidden md:flex items-center gap-6 text-base font-medium">
           <li>
-            <Link href="/" className="hover:text-[var(--orange-color)] transition">Home</Link>
+            <Link href={route('landing')} className="hover:text-[var(--orange-color)] transition">Home</Link>
           </li>
           <li>
-            <Link href="/about" className="hover:text-[var(--orange-color)] transition">About</Link>
+            <Link href={route('about')} className="hover:text-[var(--orange-color)] transition">About</Link>
           </li>
           <li>
-            <Link href="/worke" className="hover:text-[var(--orange-color)] transition">How It Works</Link>
+            <Link href={route('worke')} className="hover:text-[var(--orange-color)] transition">How It Works</Link>
           </li>
           <li>
-            <Link href="/complaints" className="hover:text-[var(--orange-color)] transition">Complaints</Link>
+            <Link href={route('complaints')} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
           </li>
           <li>
-            <Link href="/manager-approval" className="hover:text-[var(--orange-color)] transition">Manager Approval</Link>
+            <Link href={route('manager-approval')} className="hover:text-[var(--orange-color)] transition">Manager Approval</Link>
           </li>
           <li>
-            <Link href="/blog" className="hover:text-[var(--orange-color)] transition">Blog</Link>
+            <Link href={route('blog')} className="hover:text-[var(--orange-color)] transition">Blog</Link>
           </li>
         
           {/* Services Dropdown */}
@@ -50,17 +50,17 @@ const Navbar = () => {
             </button>
             <ul className="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all bg-[var(--light-black-color)] mt-2 py-2 px-4 rounded shadow-md min-w-full w-max z-50">
               <li>
-                <Link href="/submit-complaint" className="block py-1 hover:text-[var(--orange-color)]">
+                <Link href={route('submit-complaint')} className="block py-1 hover:text-[var(--orange-color)]">
                   Submit Complaint
                 </Link>
               </li>
               <li>
-                <Link href="/complaints-tracking" className="block py-1 hover:text-[var(--orange-color)]">
+                <Link href={route('complaints-tracking')} className="block py-1 hover:text-[var(--orange-color)]">
                   Track Complaint
                 </Link>
               </li>
               <li>
-                <Link href="/escalated-complaint" className="block py-1 hover:text-[var(--orange-color)]">
+                <Link href={route('escalated-complaint')} className="block py-1 hover:text-[var(--orange-color)]">
                   Escalated Complaints
                 </Link>
               </li>
@@ -75,19 +75,19 @@ const Navbar = () => {
             </button>
             <ul className="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all bg-[var(--light-black-color)] mt-2 py-2 px-4 rounded shadow-md w-40">
               <li>
-                <Link href="/contact" className="block py-1 hover:text-[var(--orange-color)]">Contact</Link>
+                <Link href={route('contact')} className="block py-1 hover:text-[var(--orange-color)]">Contact</Link>
               </li>
               <li>
-                <Link href="/feedback" className="block py-1 hover:text-[var(--orange-color)]">Feedback</Link>
+                <Link href={route('feedback')} className="block py-1 hover:text-[var(--orange-color)]">Feedback</Link>
               </li>
               <li>
-                <Link href="/user-guide" className="block py-1 hover:text-[var(--orange-color)]">User Guide</Link>
+                <Link href="#" className="block py-1 hover:text-[var(--orange-color)]">User Guide</Link>
               </li>
               <li>
-                <Link href="/faqs" className="block py-1 hover:text-[var(--orange-color)]">FAQs</Link>
+                <Link href={route('faqs')} className="block py-1 hover:text-[var(--orange-color)]">FAQs</Link>
               </li>
               <li>
-                <Link href="/user-profile" className="block py-1 hover:text-[var(--orange-color)]">Profile</Link>
+                <Link href={route('user-profile')} className="block py-1 hover:text-[var(--orange-color)]">Profile</Link>
               </li>
             </ul>
           </li>
@@ -95,7 +95,7 @@ const Navbar = () => {
 
         {/* Get Started Button (Desktop Only) */}
         <Link
-          href="/sing-in"
+          href={route('login')}
           className="hidden md:inline-block bg-[var(--orange-color)] text-black font-semibold py-2 px-5 rounded-3xl hover:opacity-90 transition duration-300 text-center"
         >
           Get Started
@@ -114,27 +114,27 @@ const Navbar = () => {
         } transition-transform duration-300 z-40 shadow-lg`}
       >
         <div className="flex flex-col p-6 space-y-4 pt-16">
-          <Link href="/" onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Home</Link>
-          <Link href="/about" onClick={toggleMenu} className="hover:text-[var(--orange-color)]">About</Link>
-          <Link href="/how-it-works" onClick={toggleMenu} className="hover:text-[var(--orange-color)]">How It Works</Link>
-          <Link href="/complaint" className="hover:text-[var(--orange-color)] transition">Complaints</Link>
-          <Link href="/blog" onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Blog</Link>
+          <Link href={route('landing')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Home</Link>
+          <Link href={route('about')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">About</Link>
+          <Link href={route('worke')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">How It Works</Link>
+          <Link href={route('complaints')} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
+          <Link href={route('blog')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Blog</Link>
 
           <div className="border-t border-[var(--gray-color)] pt-4">
             <p className="font-semibold">Services</p>
-            <Link href="/submit-complaint" onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Submit Complaint</Link>
-            <Link href="/complaints-tracking" onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Track Complaint</Link>
-            <Link href="/escalate-complaints" onClick={toggleMenu} className="block py-1 hover:text-[var(--orange-color)]">
+            <Link href={route('submit-complaint')} onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Submit Complaint</Link>
+            <Link href={route('complaints-tracking')} onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Track Complaint</Link>
+            <Link href={route('escalated-complaint')} onClick={toggleMenu} className="block py-1 hover:text-[var(--orange-color)]">
               Escalated Complaints
             </Link>
           </div>
 
           <div className="border-t border-[var(--gray-color)] pt-4">
             <p className="font-semibold">Support</p>
-            <Link href="/contact" onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Contact</Link>
-            <Link href="/feedback" onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Feedback</Link>
-            <Link href="/guide" onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">User Guide</Link>
-            <Link href="/faqs" onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">FAQs</Link>
+            <Link href={route('contact')} onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Contact</Link>
+            <Link href={route('feedback')} onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Feedback</Link>
+            <Link href="#" onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">User Guide</Link>
+            <Link href={route('faqs')} onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">FAQs</Link>
           </div>
 
           <button

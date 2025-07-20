@@ -23,7 +23,7 @@ class RegisterController extends Controller
             'contact' => 'nullable|string|max:15',
             'employeeId' => 'nullable|string|max:50',
             'role' => 'required|in:user,agent_level1,agent_level2,manager',
-            'branch' => 'nullable|integer|exists:branches,id',
+            'branch' => 'nullable|string|max:100',
             'password' => 'required|string|confirmed|min:6',
         ]);
 
@@ -36,7 +36,7 @@ class RegisterController extends Controller
             'contact_number' => $request->contact,
             'employee_id' => $request->employeeId,
             'role' => $request->role,
-            'branch_id' => $request->branch,
+            'branch_id' => null, // We'll handle branches later
             'password' => Hash::make($request->password),
             'name' => $request->firstName . ' ' . $request->lastName,
         ]);

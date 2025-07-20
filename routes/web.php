@@ -9,14 +9,10 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FeedbackController;
 
 
+// Redirect root to landing page
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+    return redirect()->route('landing');
+})->name('home');
 
 //post methoad
 Route::post('/sign-up', [RegisterController::class, 'store'])->name('sign-up.store');
@@ -27,9 +23,10 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/', function () {
+// Landing page moved to /landing
+Route::get('/landing', function () {
     return Inertia::render('Landing');
-})->name('home');
+})->name('landing');
 
 Route::get('/about', function () {
     return Inertia::render('About');
@@ -37,7 +34,7 @@ Route::get('/about', function () {
 
 Route::get('/blog', function () {
     return Inertia::render('Blog');
-})->name('Blog');
+})->name('blog');
 
 Route::get('/worke', function () {
     return Inertia::render('Worke');
@@ -47,13 +44,17 @@ Route::get('/complaints', function () {
     return Inertia::render('Complaints');
 })->name('complaints');
 
-Route::get('/sing-in', function () {
+Route::get('/login', function () {
     return Inertia::render('Login');
-})->name('sing-in');
+})->name('login');
 
 Route::get('/sign-up', function () {
     return Inertia::render('Register');
 })->name('sign-up');
+
+Route::get('/register', function () {
+    return Inertia::render('Register');
+})->name('register');
 
 Route::get('/complaints-tracking', function () {
     return Inertia::render('ComplaintsTracking');
@@ -87,21 +88,17 @@ Route::get('/manager-approval', function () {
     return Inertia::render('ManagerApproval');
 })->name('manager-approval');
 
+// Complaint details view
 Route::get('/complaints/{id}', function ($id) {
     return Inertia::render('ComplaintDetails', ['id' => $id]);
 })->name('complaint.details');
 
-Route::get('/complaint-details/{id}', function ($id) {
-    return Inertia::render('ComplaintDetails', [
-        'id' => $id, 
-    ]);
-})->name('complaint.details');
-
-Route::get('/complaint-details/{id}', function ($id) {
+// Escalation form for complaints
+Route::get('/complaints/{id}/escalate', function ($id) {
     return Inertia::render('EscalationForm', [
         'id' => $id,
     ]);
-})->name('complaint.details');
+})->name('complaint.escalate');
 
 Route::get('/escalated-complaint/{id}/request-manager-approval', function ($id) {
     return Inertia::render('ManagerRequestForm', ['id' => $id]);

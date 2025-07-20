@@ -108,7 +108,7 @@ const Register = () => {
           {/* Form Footer Buttons */}
           <div className="col-span-2 flex justify-between mt-8 flex-wrap gap-4">
             <div className="flex gap-4 flex-wrap">
-              <Link href="/">
+              <Link href={route('landing')}>
                 <button type="button" className="bg-orange-600 hover:opacity-90 text-white font-bold py-2 px-6 rounded-md">
                   Cancel
                 </button>
