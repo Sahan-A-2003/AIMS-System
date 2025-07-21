@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -104,6 +107,37 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// User Management Routes (Admin Only)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/user-management', [UserManagementController::class, 'index'])->name('user-management.index');
+    Route::get('/user-management/create', [UserManagementController::class, 'create'])->name('user-management.create');
+    Route::post('/user-management', [UserManagementController::class, 'store'])->name('user-management.store');
+    Route::get('/user-management/{user}/edit', [UserManagementController::class, 'edit'])->name('user-management.edit');
+    Route::put('/user-management/{user}', [UserManagementController::class, 'update'])->name('user-management.update');
+    Route::delete('/user-management/{user}', [UserManagementController::class, 'destroy'])->name('user-management.destroy');
+    Route::patch('/user-management/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('user-management.toggle-status');
+});
+
+// Role Management Routes (Admin Only)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/role-management', [RoleController::class, 'index'])->name('role-management.index');
+    Route::get('/role-management/create', [RoleController::class, 'create'])->name('role-management.create');
+    Route::post('/role-management', [RoleController::class, 'store'])->name('role-management.store');
+    Route::get('/role-management/{role}/edit', [RoleController::class, 'edit'])->name('role-management.edit');
+    Route::put('/role-management/{role}', [RoleController::class, 'update'])->name('role-management.update');
+    Route::delete('/role-management/{role}', [RoleController::class, 'destroy'])->name('role-management.destroy');
+});
+
+// Permission Management Routes (Admin Only)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/permission-management', [PermissionController::class, 'index'])->name('permission-management.index');
+    Route::get('/permission-management/create', [PermissionController::class, 'create'])->name('permission-management.create');
+    Route::post('/permission-management', [PermissionController::class, 'store'])->name('permission-management.store');
+    Route::get('/permission-management/{permission}/edit', [PermissionController::class, 'edit'])->name('permission-management.edit');
+    Route::put('/permission-management/{permission}', [PermissionController::class, 'update'])->name('permission-management.update');
+    Route::delete('/permission-management/{permission}', [PermissionController::class, 'destroy'])->name('permission-management.destroy');
 });
 
 require __DIR__.'/auth.php';
