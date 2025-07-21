@@ -3,6 +3,8 @@ import { usePage, router } from '@inertiajs/react';
 
 const EscalationForm = () => {
   const { id } = usePage().props;
+  const { auth } = usePage().props;
+  const user = auth.user;
 
   const [formData, setFormData] = useState({
     owner: '',
@@ -40,8 +42,8 @@ const EscalationForm = () => {
             <input
               type="text"
               name="owner"
-              value={formData.owner}
-              onChange={handleChange}
+              value={user?.name}
+              readOnly
               className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
               required
             />

@@ -39,6 +39,8 @@ const dummyComplaints = [
 const ComplaintDetails = () => {
   const { props } = usePage();
   const id = props.id;
+  const { auth } = usePage().props;
+  const user = auth.user;
 
   const [complaint, setComplaint] = useState(dummyComplaints.find((c) => c.id === id));
   const [showRejectReason, setShowRejectReason] = useState(false);
@@ -133,13 +135,15 @@ const ComplaintDetails = () => {
               Assign to Me
             </button>
 
-            <Link
-              href={route('complaint.escalate', complaint.id)}
-              className="bg-yellow-500 text-white font-semibold px-5 py-2 rounded-md hover:bg-yellow-600 transition inline-block text-center"
-            >
-              Escalate Complaint
-            </Link>
-
+            {['agent_level1', 'admin'].includes(user?.role) && (
+              <Link
+                href={route('complaint.escalate', complaint.id)}
+                className="bg-yellow-500 text-white font-semibold px-5 py-2 rounded-md hover:bg-yellow-600 transition inline-block text-center"
+              >
+                Escalate Complaint
+              </Link>
+            )}
+            
             <button
               onClick={handleComplete}
               className="bg-green-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-green-700 transition"

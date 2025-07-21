@@ -33,12 +33,16 @@ const Navbar = () => {
           <li>
             <Link href={route('worke')} className="hover:text-[var(--orange-color)] transition">How It Works</Link>
           </li>
-          <li>
-            <Link href={route('complaints')} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
-          </li>
-          <li>
-            <Link href={route('manager-approval')} className="hover:text-[var(--orange-color)] transition">Manager Approval</Link>
-          </li>
+          {['agent_level1', 'admin'].includes(user?.role) && (
+            <li>
+              <Link href={route('complaints')} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
+            </li>
+          )}
+          {['manager', 'admin'].includes(user?.role) && (
+            <li>
+              <Link href={route('manager-approval')} className="hover:text-[var(--orange-color)] transition">Manager Approval</Link>
+            </li>
+          )}
           <li>
             <Link href={route('blog')} className="hover:text-[var(--orange-color)] transition">Blog</Link>
           </li>
@@ -50,21 +54,25 @@ const Navbar = () => {
               <img src='/icons/wight down arrow.svg' alt="Dropdown" className="w-3 h-3" />
             </button>
             <ul className="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all bg-[var(--light-black-color)] mt-2 py-2 px-4 rounded shadow-md min-w-full w-max z-50">
+              {['user', 'admin'].includes(user?.role) && (
               <li>
                 <Link href={route('submit-complaint')} className="block py-1 hover:text-[var(--orange-color)]">
                   Submit Complaint
                 </Link>
               </li>
+              )}
               <li>
                 <Link href={route('complaints-tracking')} className="block py-1 hover:text-[var(--orange-color)]">
                   Track Complaint
                 </Link>
               </li>
-              <li>
-                <Link href={route('escalated-complaint')} className="block py-1 hover:text-[var(--orange-color)]">
-                  Escalated Complaints
-                </Link>
-              </li>
+              {['agent_level2', 'admin'].includes(user?.role) && (
+                <li>
+                  <Link href={route('escalated-complaint')} className="block py-1 hover:text-[var(--orange-color)]">
+                    Escalated Complaints
+                  </Link>
+                </li>
+              )}
             </ul>
           </li>
 
@@ -132,16 +140,25 @@ const Navbar = () => {
           <Link href={route('landing')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Home</Link>
           <Link href={route('about')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">About</Link>
           <Link href={route('worke')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">How It Works</Link>
-          <Link href={route('complaints')} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
+          {['agent_level1', 'admin'].includes(user?.role) && (
+            <Link href={route('complaints')} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
+          )}
+          {['manager', 'admin'].includes(user?.role) && (
+            <li>
+              <Link href={route('manager-approval')} className="hover:text-[var(--orange-color)] transition">Manager Approval</Link>
+            </li>
+          )}
           <Link href={route('blog')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Blog</Link>
 
           <div className="border-t border-[var(--gray-color)] pt-4">
             <p className="font-semibold">Services</p>
             <Link href={route('submit-complaint')} onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Submit Complaint</Link>
             <Link href={route('complaints-tracking')} onClick={toggleMenu} className="block pl-2 py-1 hover:text-[var(--orange-color)]">Track Complaint</Link>
-            <Link href={route('escalated-complaint')} onClick={toggleMenu} className="block py-1 hover:text-[var(--orange-color)]">
-              Escalated Complaints
-            </Link>
+            {['agent_level2', 'admin'].includes(user?.role) && (
+              <Link href={route('escalated-complaint')} onClick={toggleMenu} className="block py-1 hover:text-[var(--orange-color)]">
+                Escalated Complaints
+              </Link>
+            )}
           </div>
 
           <div className="border-t border-[var(--gray-color)] pt-4">

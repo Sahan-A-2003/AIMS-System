@@ -7,7 +7,7 @@ const Footer = () => {
       {/* Top: Logo and Navigation */}
       <div className="flex flex-col lg:flex-row justify-between items-center gap-8 mb-10 flex-wrap">
         <a href={route('landing')}>
-          <img src="/images/Logo.svg" alt="AIMS Logo" className="w-48 cursor-pointer" />
+          <img src="/icons/Logo.svg" alt="AIMS Logo" className="w-48 cursor-pointer" />
         </a>
 
         <div className="w-full lg:w-auto relative">

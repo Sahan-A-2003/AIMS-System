@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from "@inertiajs/react";
+import { Link , usePage} from "@inertiajs/react";
 import {
   FaInbox,
   FaClock,
@@ -63,6 +63,9 @@ const priorityColors = {
 };
 
 const EscalatedComplaints = () => {
+    const { auth } = usePage().props;
+    const user = auth.user;
+
   return (
     <div className="bg-white h-screen overflow-y-auto w-full">
       <div data-aos="fade-up" className="p-6 bg-white rounded-2xl shadow-md">
@@ -70,12 +73,12 @@ const EscalatedComplaints = () => {
         <div>
           <div className="flex items-center justify-start gap-2 flex-wrap">
             <h1 className="text-3xl font-extrabold bg-gradient-to-r from-[var(--orange-color)] to-[var(--dark-black-color)] bg-clip-text text-transparent">
-              Welcome, Tharindu
+              Welcome, {user?.name || 'User'}
             </h1>
             <span className="text-3xl">📂</span>
           </div>
           <p className="text-gray-600 text-sm mt-1">
-            You’re logged in as a <span className="font-medium text-[var(--orange-color)]">Level 2 Agent</span> managing escalated complaints.
+            You’re logged in as a <span className="font-medium text-[var(--orange-color)]">{user?.role}</span> managing escalated complaints.
           </p>
         </div>
         <img

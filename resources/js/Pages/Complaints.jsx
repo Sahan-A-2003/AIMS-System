@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link , usePage } from '@inertiajs/react';
 import { FaInbox, FaClock, FaTools, FaArrowUp, FaCheckCircle } from 'react-icons/fa';
 
 const Complaints = () => {
+
+  const { auth } = usePage().props;
+  const user = auth.user;
 
     const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
@@ -84,12 +87,12 @@ const Complaints = () => {
         <div>
           <div className="flex items-center justify-center gap-2 flex-wrap">
             <h1 className="text-3xl font-extrabold bg-gradient-to-r from-[var(--orange-color)] to-[var(--dark-black-color)] bg-clip-text text-transparent">
-              Welcome, Tharindu
+              Welcome, {user?.name || 'User'}
             </h1>
             <span className="text-3xl">👋</span>
           </div>
           <p className="text-gray-600 text-sm mt-1">
-            You’re logged in as a Level 1 Agent.
+            You’re logged in as a <span className="font-medium text-[var(--orange-color)]">{user?.role}</span>.
           </p>
         </div>
         <img

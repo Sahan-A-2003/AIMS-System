@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link , usePage } from '@inertiajs/react';
 
 const mockComplaints = [
   { id: 101, title: 'Login issue', submittedDate: '2025-07-10', status: 'Open', priority: 'High' },
@@ -21,6 +21,8 @@ const SubmitComplaint = () => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const { auth } = usePage().props;
+  const user = auth.user;
 
   // Filter complaints based on filters and search term
   const filteredComplaints = useMemo(() => {
@@ -52,7 +54,12 @@ const SubmitComplaint = () => {
           <div className="space-y-4">
             <div>
               <label className="block mb-1 font-medium">Full Name</label>
-              <input type="text" placeholder="Enter your full name" className="border p-2 rounded w-full" />
+              <input
+                type="text"
+                value={user?.username || 'User'}
+                readOnly
+                className="border p-2 rounded w-full bg-gray-100 text-gray-700 cursor-default"
+              />
             </div>
 
             <div>
