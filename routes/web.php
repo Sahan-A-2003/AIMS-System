@@ -44,17 +44,13 @@ Route::get('/complaints', function () {
     return Inertia::render('Complaints');
 })->name('complaints');
 
-Route::get('/login', function () {
-    return Inertia::render('Login');
-})->name('login');
+
 
 Route::get('/sign-up', function () {
     return Inertia::render('Register');
 })->name('sign-up');
 
-Route::get('/register', function () {
-    return Inertia::render('Register');
-})->name('register');
+
 
 Route::get('/complaints-tracking', function () {
     return Inertia::render('ComplaintsTracking');
