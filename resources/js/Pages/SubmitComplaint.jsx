@@ -60,16 +60,22 @@ const SubmitComplaint = () => {
     e.preventDefault();
 
     try {
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+      if (!token) {
+        alert('CSRF token not found');
+        return;
+      }
 
       await axios.post('/submit-complaint', formData, {
         headers: {
-          'X-CSRF-TOKEN': csrfToken,
-          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': token,
+          'X-Requested-With': 'XMLHttpRequest',
         },
       });
 
       handleClear();
+      alert('successfully added complaint.');
 
       const updated = await axios.get('/complaints-data');
       setComplaints(updated.data);

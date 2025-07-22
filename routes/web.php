@@ -38,6 +38,10 @@ Route::get('/complaints-data', [ComplaintController::class, 'index']);
 // feedback data
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
 
+//complaint detailes
+Route::get('/complaints/{id}', [ComplaintController::class, 'show'])->name('complaints.show');
+
+
 //get method
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
