@@ -39,7 +39,15 @@ Route::get('/complaints-data', [ComplaintController::class, 'index']);
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
 
 //complaint detailes
-Route::get('/complaints/{id}', [ComplaintController::class, 'show'])->name('complaints.show');
+Route::get('/complaints/{complaint_id}', [ComplaintController::class, 'show']);
+
+// escalate complaint from
+Route::get('/complaints/{id}/escalate', [ComplaintController::class, 'escalate'])->name('complaint.escalate');
+
+//dasborde routes
+Route::get('/dashboard', [ComplaintController::class, 'getInProgressCount']);
+
+
 
 
 //get method

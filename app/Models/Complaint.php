@@ -23,6 +23,8 @@ class Complaint extends Model
         'contactNumber',
     ];
 
+    protected $table = 'complaints';
+
     // Relationships
     public function user(): BelongsTo
     {
