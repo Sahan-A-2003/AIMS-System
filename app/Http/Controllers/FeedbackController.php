@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Feedback;  // Make sure you create this model
+use App\Models\Feedback;  
 use Illuminate\Support\Facades\Validator;
 
 class FeedbackController extends Controller
@@ -23,21 +23,28 @@ class FeedbackController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        $feedback = Feedback::create([
-            'user_id' => $request->user_id,
-            'complaint_id' => $request->complaint_id,
-            'agent_id' => $request->agent_id,
-            'full_name' => $request->full_name,
-            'email' => $request->email,
-            'rating' => $request->rating,
-            'liked_most' => $request->liked_most,
-            'suggestions' => $request->suggestions,
-            'would_recommend' => $request->would_recommend,
-        ]);
+        try {
+            Feedback::create([
+                'user_id' => $request->user_id,
+                'complaint_id' => $request->complaint_id,
+                'agent_id' => $request->agent_id,
+                'full_name' => $request->full_name,
+                'email' => $request->email,
+                'rating' => $request->rating,
+                'liked_most' => $request->liked_most,
+                'suggestions' => $request->suggestions,
+                'would_recommend' => $request->would_recommend,
+            ]);
 
-        return response()->json(['message' => 'Feedback submitted successfully', 'feedback' => $feedback], 201);
+            return redirect()->back()->with('success', 'Feedback submitted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Feedback submission error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong. Please try again later.');
+        }
     }
 }

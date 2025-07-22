@@ -20,10 +20,7 @@ const ManagerApproval = () => {
       { id: 'REQ001', complaintId: 'CMP003', agent: 'Chamoth', reason: 'Need Level 2 Support', status: 'Pending' },
     ]);
 
-    setAgents([
-      { name: 'Adithya', role: 'Level 1' },
-      { name: 'Chamoth', role: 'Level 2' },
-    ]);
+    
   }, []);
 
   const filteredComplaints = complaints.filter(c =>
@@ -82,7 +79,6 @@ const ManagerApproval = () => {
             {tab === 'overview' && 'Overview'}
             {tab === 'complaints' && 'Complaints'}
             {tab === 'approvals' && 'Approval Requests'}
-            {tab === 'agents' && 'Agent Management'}
           </button>
         ))}
       </nav>

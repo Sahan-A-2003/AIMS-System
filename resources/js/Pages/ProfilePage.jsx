@@ -1,8 +1,13 @@
 import { useState } from "react";
+import { Link , usePage } from '@inertiajs/react';
 
-const ProfilePage = ({ user }) => {
+const ProfilePage = () => {
+  const { auth } = usePage().props;
+  const user = auth.user;
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({ ...user });
+
   
   if (!user) {
     return <div className="p-6 text-center text-gray-600">Loading user profile...</div>;

@@ -17,6 +17,12 @@ Route::get('/', function () {
 //post methoad
 Route::post('/sign-up', [RegisterController::class, 'store'])->name('sign-up.store');
 
+//feedback submit
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+
+//complaint
+Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+
 
 //get method
 Route::get('/dashboard', function () {

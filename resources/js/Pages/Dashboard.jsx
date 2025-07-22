@@ -145,14 +145,7 @@ const Dashboard = () => {
                   3
                 </span>
               </div>
-              <Link
-                href={route('logout')}
-                method="post"
-                as="button"
-                className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:opacity-90 transition duration-300"
-              >
-                Logout
-              </Link>
+              
               <img
                 src="/images/sahan.jpg"
                 alt="User Avatar"

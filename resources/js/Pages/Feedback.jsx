@@ -1,12 +1,14 @@
-import React from 'react'
-import { useState } from "react";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { Link , usePage } from '@inertiajs/react';
 
 
 const Feedback = () => {
 
-  const [recommendation, setRecommendation] = useState("");
-  const [error, setError] = useState("");
-  const [formData, setFormData] = useState({
+const { auth } = usePage().props;
+const user = auth.user;
+
+const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     likeMost: '',
@@ -15,18 +17,27 @@ const Feedback = () => {
     rating: '',
   });
 
-  const handleInputChange = (e) => {
-    const value = e.target.value.trim();
-    setRecommendation(value);
+  const [error, setError] = useState('');
 
-    // Validate in real-time
-    if (value && !/^yes$|^no$/i.test(value)) {
-      setError("Please enter 'Yes' or 'No' only.");
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // For recommend field, validate Yes/No input
+    if (name === 'recommend') {
+      const trimmedValue = value.trim();
+      if (trimmedValue && !/^yes$|^no$/i.test(trimmedValue)) {
+        setError("Please enter 'Yes' or 'No' only.");
+      } else {
+        setError('');
+      }
+      setFormData(prev => ({ ...prev, [name]: trimmedValue }));
     } else {
-      setError("");
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
+  // Clear form inputs
   const handleClear = () => {
     setFormData({
       fullName: '',
@@ -36,6 +47,37 @@ const Feedback = () => {
       recommend: '',
       rating: '',
     });
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+  
+      if (error) {
+      alert(error);
+      return;
+      }
+  
+      try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        await axios.post('/feedback', formData, {
+          headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        alert('Feedback submitted successfully!');
+        handleClear();
+      } catch (err) {
+        if (err.response?.status === 422) {
+          alert('Validation error: Please check your inputs.');
+        } else {
+          console.error(err);
+          alert('An error occurred. Please try again.');
+        }
+    };
   };
 
   return (
@@ -68,19 +110,18 @@ const Feedback = () => {
             <span className="block h-1 w-1/2 mx-auto bg-[var(--orange-color)] mt-2 rounded-full"></span>
           </h2>
 
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
             {/* Full Name */}
             <div>
               <label className="block font-medium mb-2">Full Name</label>
               <input
                 type="text"
                 name="fullName"
-                value={formData.fullName}
-                onChange={(e) =>
-                  setFormData({ ...formData, [e.target.name]: e.target.value })
-                }
+                value={user?.name}
+                onChange={handleInputChange}
                 placeholder="Full Name"
                 className="w-full border border-gray-300 rounded-md p-3 outline-none focus:ring-2 focus:ring-[var(--orange-color)]"
+                required
               />
             </div>
 
@@ -88,14 +129,13 @@ const Feedback = () => {
             <div>
               <label className="block font-medium mb-2">Email</label>
               <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, [e.target.name]: e.target.value })
-                  }
-                  placeholder="Email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Email"
                 className="w-full border border-gray-300 rounded-md p-3 outline-none focus:ring-2 focus:ring-[var(--orange-color)]"
+                required
               />
             </div>
 
@@ -103,12 +143,10 @@ const Feedback = () => {
             <div>
               <label className="block font-medium mb-2">What did you like most?</label>
               <textarea
-                  name="likeMost"
-                  value={formData.likeMost}
-                  onChange={(e) =>
-                    setFormData({ ...formData, [e.target.name]: e.target.value })
-                  }
-                  placeholder="Was there a feature or experience you really liked?"
+                name="likeMost"
+                value={formData.likeMost}
+                onChange={handleInputChange}
+                placeholder="Was there a feature or experience you really liked?"
                 className="w-full border border-gray-300 rounded-md p-3 h-24 outline-none resize-none focus:ring-2 focus:ring-[var(--orange-color)]"
               />
             </div>
@@ -117,11 +155,9 @@ const Feedback = () => {
             <div>
               <label className="block font-medium mb-2">What can we improve?</label>
               <textarea
-                  name="improvement"
-                  value={formData.improvement}
-                  onChange={(e) =>
-                    setFormData({ ...formData, [e.target.name]: e.target.value })
-                  }
+                name="improvement"
+                value={formData.improvement}
+                onChange={handleInputChange}
                 placeholder="Was anything confusing or missing? Share your thoughts."
                 className="w-full border border-gray-300 rounded-md p-3 h-24 outline-none resize-none focus:ring-2 focus:ring-[var(--orange-color)]"
               />
@@ -134,39 +170,25 @@ const Feedback = () => {
                 type="text"
                 name="recommend"
                 value={formData.recommend}
-                onChange={(e) => {
-                  const value = e.target.value.trim();
-                  setFormData({ ...formData, recommend: value });
-
-                  if (value && !/^yes$|^no$/i.test(value)) {
-                    setError("Please enter 'Yes' or 'No' only.");
-                  } else {
-                    setError("");
-                  }
-                }}
+                onChange={handleInputChange}
                 placeholder="Yes/No"
                 className={`w-full border rounded-md p-3 outline-none focus:ring-2 ${
-                  error
-                    ? "border-red-500 focus:ring-red-400"
-                    : "border-gray-300 focus:ring-[var(--orange-color)]"
+                  error ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-[var(--orange-color)]'
                 }`}
+                required
               />
-              {error && (
-                <p className="text-red-500 text-sm mt-1">{error}</p>
-              )}
+              {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
             </div>
 
             {/* Rating */}
             <div>
               <label className="block font-medium mb-2">Rating</label>
               <select
-                  name="rating"
-                  value={formData.rating}
-                  onChange={(e) =>
-                    setFormData({ ...formData, [e.target.name]: e.target.value })
-                  }
-                defaultValue=""
+                name="rating"
+                value={formData.rating}
+                onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded-md p-3 outline-none focus:ring-2 focus:ring-[var(--orange-color)] bg-white text-black"
+                required
               >
                 <option value="" disabled>
                   Select Rating
@@ -178,25 +200,25 @@ const Feedback = () => {
                 <option value="5">5 - Excellent</option>
               </select>
             </div>
+
+            {/* Buttons */}
+            <div className="col-span-2 flex flex-col-reverse md:flex-row justify-between gap-4 mt-8">
+              <button
+                type="button"
+                onClick={handleClear}
+                className="bg-gray-200 text-black font-semibold px-6 py-2 rounded-md hover:scale-105 transform transition duration-300"
+              >
+                Clear Form
+              </button>
+
+              <button
+                type="submit"
+                className="bg-[var(--orange-color)] text-black font-semibold px-6 py-2 rounded-md hover:scale-105 transform transition duration-300"
+              >
+                Submit Feedback
+              </button>
+            </div>
           </form>
-
-          <div className="mt-8 flex flex-col-reverse md:flex-row justify-between gap-4">
-            <button
-              type="button"
-              onClick={handleClear} 
-              className="bg-gray-200 text-black font-semibold px-6 py-2 rounded-md hover:scale-105 transform transition duration-300"
-            >
-              Clear Form
-            </button>
-
-            <button
-              type="submit"
-              className="bg-[var(--orange-color)] text-black font-semibold px-6 py-2 rounded-md hover:scale-105 transform transition duration-300"
-            >
-              Submit Feedback
-            </button>
-          
-          </div>
         </div>
       </div>
 
