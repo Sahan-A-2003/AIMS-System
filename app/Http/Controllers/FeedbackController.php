@@ -12,7 +12,7 @@ class FeedbackController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
-            'complaint_id' => 'required|exists:complaints,id',
+            'complaint_id' => 'nullable|exists:complaints,id',
             'agent_id' => 'nullable|exists:users,id',
             'fullName' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -43,7 +43,7 @@ class FeedbackController extends Controller
 
             return redirect()->back()->with('success', 'Feedback submitted successfully!');
         } catch (\Exception $e) {
-            Log::error('Feedback submission error: ' . $e->getMessage());
+            \Log::error('Feedback submission error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Something went wrong. Please try again later.');
         }
     }
