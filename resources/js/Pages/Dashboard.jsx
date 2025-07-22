@@ -12,7 +12,9 @@ import {
   FaBell,
   FaCog,
   FaFileAlt,
-  FaHeadset
+  FaHeadset,
+  FaUserShield,
+  FaUserCog
 } from 'react-icons/fa';
 
 const Dashboard = () => {
@@ -80,6 +82,31 @@ const Dashboard = () => {
       icon: <FaHeadset className="text-orange-600 text-2xl" />,
       link: '/feedback',
       bg: 'bg-orange-50 hover:bg-orange-100'
+    },
+  ];
+
+  // Admin-only quick actions
+  const adminActions = [
+    {
+      title: 'User Management',
+      description: 'Register and manage users',
+      icon: <FaUsers className="text-indigo-600 text-2xl" />,
+      link: '/user-management',
+      bg: 'bg-indigo-50 hover:bg-indigo-100'
+    },
+    {
+      title: 'Role Management',
+      description: 'Manage roles and permissions',
+      icon: <FaUserShield className="text-purple-600 text-2xl" />,
+      link: '/role-management',
+      bg: 'bg-purple-50 hover:bg-purple-100'
+    },
+    {
+      title: 'Permission Management',
+      description: 'Manage system permissions',
+      icon: <FaUserCog className="text-blue-600 text-2xl" />,
+      link: '/permission-management',
+      bg: 'bg-blue-50 hover:bg-blue-100'
     },
   ];
 
@@ -196,6 +223,30 @@ const Dashboard = () => {
           ))}
         </div>
       </div>
+
+      {/* Admin Actions */}
+      {user?.role === 'admin' && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Admin Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {adminActions.map((action, index) => (
+              <Link
+                key={index}
+                href={action.link}
+                className={`${action.bg} rounded-xl p-6 shadow-sm transition-all duration-300 cursor-pointer border border-gray-200`}
+              >
+                <div className="flex items-center gap-4">
+                  <div>{action.icon}</div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800">{action.title}</h3>
+                    <p className="text-sm text-gray-600">{action.description}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
