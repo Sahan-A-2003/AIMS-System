@@ -4,6 +4,9 @@ import { Link, usePage, useForm } from '@inertiajs/react';
 const Feedback = () => {
   const { auth } = usePage().props;
   const user = auth.user;
+  const { feedbacks } = usePage().props;
+
+  console.log('Feedbacks from backend:', feedbacks);
 
   const { data, setData, post, processing, errors, reset } = useForm({
     user_id: user?.id || '',
@@ -19,18 +22,8 @@ const Feedback = () => {
 
   // Handle input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'would_recommend') {
-      const trimmedValue = value.trim();
-      if (trimmedValue && !/^yes$|^no$/i.test(trimmedValue)) {
-        setError("Please enter 'Yes' or 'No' only.");
-      } else {
-        setError('');
-      }
-      setData(name, trimmedValue);
-    } else {
-      setData(name, value);
-    }
+  const { name, value } = e.target;
+  setData(name, value);
   };
 
   // Clear form inputs
@@ -190,67 +183,60 @@ const Feedback = () => {
         </div>
       </div>
       <div className="w-full flex justify-center flex-wrap gap-5 py-5 px-6 cursor-default">
-        <div data-aos="fade-right" className="bg-[var(--light-black-color)] text-white rounded-xl shadow-md p-6 flex flex-col gap-4 w-full md:w-[600px]">
-          {/* Name and Rating */}
-          <div className="flex justify-between items-center border-b border-[var(--gray-color)] pb-3">
-            <h3 className="text-lg font-semibold">Dilani Perera</h3>
-            <p className="text-sm text-[var(--orange-color)] font-medium">Rating: 4</p>
-          </div>
-          {/* What did you like most */}
-          <div>
-            <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">What did you like most?</p>
-            <p className="text-sm text-gray-200">
-              The complaint submission process was really smooth and easy to understand. I appreciated the automatic email updates at each step.
-            </p>
-          </div>
-          {/* What can we improve */}
-          <div>
-            <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">What can we improve?</p>
-            <p className="text-sm text-gray-200">
-              Maybe allow users to attach multiple files or screenshots in one go instead of one at a time.
-            </p>
-          </div>
-          {/* Would you recommend us? */}
-          <div>
-            <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">Would you recommend us?</p>
-            <p className="text-sm text-gray-200">Yes</p>
-          </div>
-          {/* Feedback date */}
-          <div className="text-right pt-3 mt-auto">
-            <p className="text-xs text-gray-400">July 3, 2025</p>
-          </div>
-        </div>
-        <div className="bg-[var(--light-black-color)] text-white rounded-xl shadow-md p-6 flex flex-col gap-4 w-full md:w-[600px]">
-          {/* Name and Rating */}
-          <div className="flex justify-between items-center border-b border-[var(--gray-color)] pb-3">
-            <h3 className="text-lg font-semibold">Nuwan Silva</h3>
-            <p className="text-sm underline font-medium">Email: nuwans@branchbank.lk</p>
-            <p className="text-sm text-[var(--orange-color)] font-medium">Rating: 5</p>
-          </div>
-          {/* What did you like most */}
-          <div>
-            <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">What did you like most?</p>
-            <p className="text-sm text-gray-200">
-              The escalation workflow and approval system are very well-designed. It keeps everything documented and ensures proper review before closure.
-            </p>
-          </div>
-          {/* What can we improve */}
-          <div>
-            <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">What can we improve?</p>
-            <p className="text-sm text-gray-200">
-              Add the ability to filter complaint history by user role or region for better tracking.Maybe allow users to attach multiple files or screenshots in one go instead of one at a time.
-            </p>
-          </div>
-          {/* Would you recommend us? */}
-          <div>
-            <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">Would you recommend us?</p>
-            <p className="text-sm text-gray-200">Yes</p>
-          </div>
-          {/* Feedback date */}
-          <div className="text-right pt-3 mt-auto">
-            <p className="text-xs text-gray-400">July 6, 2025</p>
-          </div>
-        </div>
+        {feedbacks.length > 0 ? (
+          feedbacks.map((feedback) => (
+            <div
+              key={feedback.id}
+              className="bg-[var(--light-black-color)] text-white rounded-xl shadow-md p-6 flex flex-col gap-4 w-full md:w-[600px]"
+            >
+              {/* Name and Rating */}
+              <div className="flex justify-between items-center border-b border-[var(--gray-color)] pb-3">
+                <h3 className="text-lg font-semibold">{feedback.full_name}</h3>
+                {feedback.email && (
+                  <p className="text-sm underline font-medium">Email: {feedback.email}</p>
+                )}
+                <p className="text-sm text-[var(--orange-color)] font-medium">Rating: {feedback.rating}</p>
+              </div>
+
+              {/* What did you like most */}
+              {feedback.liked_most && (
+                <div>
+                  <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">
+                    What did you like most?
+                  </p>
+                  <p className="text-sm text-gray-200">{feedback.liked_most}</p>
+                </div>
+              )}
+
+              {/* Suggestions */}
+              {feedback.suggestions && (
+                <div>
+                  <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">
+                    What can we improve?
+                  </p>
+                  <p className="text-sm text-gray-200">{feedback.suggestions}</p>
+                </div>
+              )}
+
+              {/* Would you recommend us? */}
+              <div>
+                <p className="text-sm font-semibold text-[var(--orange-color)] mb-1">
+                  Would you recommend us?
+                </p>
+                <p className="text-sm text-gray-200">{feedback.would_recommend ? 'Yes' : 'No'}</p>
+              </div>
+
+              {/* Date */}
+              <div className="text-right pt-3 mt-auto">
+                <p className="text-xs text-gray-400">
+                  {new Date(feedback.created_at).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">No feedback submitted yet.</p>
+        )}
       </div>
     </div>
   );

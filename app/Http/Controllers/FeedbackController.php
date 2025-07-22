@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Feedback;  
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class FeedbackController extends Controller
 {
@@ -14,12 +15,12 @@ class FeedbackController extends Controller
             'user_id' => 'required|exists:users,id',
             'complaint_id' => 'nullable|exists:complaints,id',
             'agent_id' => 'nullable|exists:users,id',
-            'fullName' => 'required|string|max:255',
+            'full_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'rating' => 'required|integer|between:1,5',
-            'likeMost' => 'nullable|string',
-            'improvement' => 'nullable|string',
-            'recommend' => 'required|boolean',
+            'liked_most' => 'nullable|string',
+            'suggestions' => 'nullable|string',
+            'would_recommend' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -33,12 +34,12 @@ class FeedbackController extends Controller
                 'user_id' => $request->user_id,
                 'complaint_id' => $request->complaint_id,
                 'agent_id' => $request->agent_id,
-                'full_name' => $request->fullName,
+                'full_name' => $request->full_name,
                 'email' => $request->email,
                 'rating' => $request->rating,
-                'liked_most' => $request->likeMost,
-                'suggestions' => $request->improvement,
-                'would_recommend' => $request->recommend,
+                'liked_most' => $request->liked_most,
+                'suggestions' => $request->suggestions,
+                'would_recommend' => $request->would_recommend,
             ]);
 
             return redirect()->back()->with('success', 'Feedback submitted successfully!');
@@ -46,5 +47,14 @@ class FeedbackController extends Controller
             \Log::error('Feedback submission error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Something went wrong. Please try again later.');
         }
+    }
+
+    public function index()
+    {
+        $feedbacks = Feedback::latest()->get();
+
+        return Inertia::render('Feedback', [
+            'feedbacks' => $feedbacks
+        ]);
     }
 }

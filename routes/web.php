@@ -35,7 +35,8 @@ Route::get('/complaints-data', [ComplaintController::class, 'getComplaints']);
 //complaint data
 Route::get('/complaints-data', [ComplaintController::class, 'index']);
 
-
+// feedback data
+Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
 
 //get method
 Route::get('/dashboard', function () {
@@ -83,9 +84,9 @@ Route::get('/faqs', function () {
     return Inertia::render('FAQ');
 })->name('faqs');
 
-Route::get('/feedback', function () {
-    return Inertia::render('Feedback');
-})->name('feedback');
+// Route::get('/feedback', function () {
+//     return Inertia::render('Feedback');
+// })->name('feedback');
 
 Route::get('/user-profile', function () {
     return Inertia::render('ProfilePage');
