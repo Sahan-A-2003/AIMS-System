@@ -1,13 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link, usePage } from '@inertiajs/react';
-import axios from 'axios';
+import { Link, usePage, useForm } from '@inertiajs/react';
 
 const SubmitComplaint = () => {
   const { auth } = usePage().props;
   const user = auth.user;
 
-  // Initial Form Data
-  const [formData, setFormData] = useState({
+  // Inertia useForm for CSRF-safe submission
+  const { data, setData, post, processing, errors, reset } = useForm({
     user_id: user?.id || '',
     fullName: user?.username || '',
     email: '',
@@ -33,51 +32,34 @@ const SubmitComplaint = () => {
 
   // Fetch complaints on mount
   useEffect(() => {
-    axios.get('/complaints-data')
-      .then((response) => setComplaints(response.data))
+    fetch('/complaints-data')
+      .then((response) => response.json())
+      .then((data) => setComplaints(data))
       .catch((error) => console.error('Failed to load complaints', error));
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setData(e.target.name, e.target.value);
   };
 
   const handleClear = () => {
-    setFormData({
-      fullName: user?.username || '',
-      email: '',
-      contactNumber: '',
-      branch: '',
-      priority: '',
-      type: '',
-      title: '',
-      description: '',
-    });
+    reset();
+    setData('fullName', user?.username || '');
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    try {
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-      await axios.post('/submit-complaint', formData, {
-        headers: {
-          'X-CSRF-TOKEN': csrfToken,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      handleClear();
-
-      const updated = await axios.get('/complaints-data');
-      setComplaints(updated.data);
-
-    } catch (error) {
-      console.error(error);
-      alert('Failed to submit complaint.');
-    }
+    post('/submit-complaint', {
+      onSuccess: () => {
+        handleClear();
+        fetch('/complaints-data')
+          .then((response) => response.json())
+          .then((data) => setComplaints(data));
+      },
+      onError: () => {
+        alert('Failed to submit complaint. Please check your inputs.');
+      },
+    });
   };
 
   const filteredComplaints = useMemo(() => {
@@ -113,7 +95,7 @@ const SubmitComplaint = () => {
               <input
                 type="text"
                 name="fullName"
-                value={formData.fullName}
+                value={data.fullName}
                 readOnly
                 className="border p-2 rounded w-full bg-gray-100 cursor-not-allowed text-gray-700"
               />
@@ -124,11 +106,12 @@ const SubmitComplaint = () => {
                 type="email"
                 name="email"
                 placeholder="Enter your email"
-                value={formData.email}
+                value={data.email}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               />
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Contact Number</label>
@@ -136,17 +119,18 @@ const SubmitComplaint = () => {
                 type="text"
                 name="contactNumber"
                 placeholder="Enter your contact number"
-                value={formData.contactNumber}
+                value={data.contactNumber}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               />
+              {errors.contactNumber && <p className="text-red-500 text-sm mt-1">{errors.contactNumber}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Branch</label>
               <select
                 name="branch"
-                value={formData.branch}
+                value={data.branch}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
@@ -156,12 +140,13 @@ const SubmitComplaint = () => {
                 <option value="Kegoll">Kegoll</option>
                 <option value="Awissawella">Awissawella</option>
               </select>
+              {errors.branch && <p className="text-red-500 text-sm mt-1">{errors.branch}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Priority Level</label>
               <select
                 name="priority"
-                value={formData.priority}
+                value={data.priority}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
@@ -170,7 +155,9 @@ const SubmitComplaint = () => {
                 <option value="High">High</option>
                 <option value="Medium">Medium</option>
                 <option value="Low">Low</option>
+                <option value="Urgent">Urgent</option>
               </select>
+              {errors.priority && <p className="text-red-500 text-sm mt-1">{errors.priority}</p>}
             </div>
           </div>
 
@@ -180,16 +167,19 @@ const SubmitComplaint = () => {
               <label className="block mb-1 font-medium">Complaint Type</label>
               <select
                 name="type"
-                value={formData.type}
+                value={data.type}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               >
                 <option value="">Select Complaint Type</option>
-                <option value="technical">Technical</option>
-                <option value="service">Service</option>
-                <option value="billing">Billing</option>
+                <option value="Technical">Technical</option>
+                <option value="Billing">Billing</option>
+                <option value="Service">Service</option>
+                <option value="Account">Account</option>
+                <option value="Other">Other</option>
               </select>
+              {errors.type && <p className="text-red-500 text-sm mt-1">{errors.type}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Complaint Title</label>
@@ -197,22 +187,24 @@ const SubmitComplaint = () => {
                 type="text"
                 name="title"
                 placeholder="Enter complaint title"
-                value={formData.title}
+                value={data.title}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               />
+              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Complaint Description</label>
               <textarea
                 name="description"
                 placeholder="Enter detailed description"
-                value={formData.description}
+                value={data.description}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full h-28 md:h-32"
               />
+              {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
             </div>
           </div>
 
@@ -227,9 +219,10 @@ const SubmitComplaint = () => {
             </button>
             <button
               type="submit"
-              className="bg-orange-600 hover:opacity-90 text-white font-semibold py-2 px-6 rounded-md"
+              disabled={processing}
+              className="bg-orange-600 hover:opacity-90 text-white font-semibold py-2 px-6 rounded-md disabled:opacity-50"
             >
-              Submit a Complaint
+              {processing ? 'Submitting...' : 'Submit a Complaint'}
             </button>
           </div>
         </form>

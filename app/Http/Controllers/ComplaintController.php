@@ -20,11 +20,10 @@ class ComplaintController extends Controller
             'description' => 'required|string',
             'user_id' => 'required|exists:users,id',
             'assigned_agent_id' => 'nullable|exists:users,id',
-            'status' => 'nullable|string|in:open,in_progress,resolved,closed',
-            'priority' => 'nullable|string|in:low,medium,high,urgent',
-            'type' => 'nullable|string|max:100',
+            'status' => 'nullable|string|in:Open,In Progress,Escalated,Resolved,Closed',
+            'priority' => 'nullable|string|in:Low,Medium,High,Urgent',
+            'type' => 'nullable|string|in:Technical,Billing,Service,Account,Other',
             'branch' => 'nullable|string|max:100',
-            
         ]);
 
         if ($validator->fails()) {
@@ -37,7 +36,7 @@ class ComplaintController extends Controller
             // Generate a new complaint_id using your model method
             $complaintId = Complaint::generateComplaintId();
 
-            Complaint::create([
+            $complaint = Complaint::create([
                 'fullName' => $request->fullName,
                 'email' => $request->email,
                 'contactNumber' => $request->contactNumber,
@@ -46,16 +45,17 @@ class ComplaintController extends Controller
                 'description' => $request->description,
                 'user_id' => $request->user_id,
                 'assigned_agent_id' => $request->assigned_agent_id,
-                'status' => $request->status ?? 'open',  
-                'priority' => $request->priority ?? 'medium',
-                'type' => $request->type,
+                'status' => $request->status ?? 'Open',  
+                'priority' => $request->priority ?? 'Medium',
+                'type' => $request->type ?? 'Other',
                 'branch' => $request->branch,
             ]);
 
-            return redirect()->route('complaints.index')
+            return redirect()->route('complaints')
                             ->with('success', 'Complaint submitted successfully!');
         } catch (\Exception $e) {
             Log::error('Complaint creation error: ' . $e->getMessage());
+            Log::error('Request data: ' . json_encode($request->all()));
 
             return redirect()->back()
                 ->with('error', 'Something went wrong. Please try again later.')
@@ -72,4 +72,12 @@ class ComplaintController extends Controller
         return response()->json($complaints);
     }
 
+    public function getComplaints()
+    {
+        $complaints = Complaint::where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($complaints);
+    }
 }

@@ -27,14 +27,9 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.s
 
 //complaint
 Route::post('/submit-complaint', [ComplaintController::class, 'store'])->name('submit-complaint.store');
-Route::get('/complaints-data', [ComplaintController::class, 'getComplaints']);
-
-
-
-//show dATA from data base
-//complaint data
 Route::get('/complaints-data', [ComplaintController::class, 'index']);
 
+//show dATA from data base
 // feedback data
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
 
