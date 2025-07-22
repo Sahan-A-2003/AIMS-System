@@ -12,25 +12,15 @@ class Complaint extends Model
         'complaint_id',
         'title',
         'description',
-        'user_id',
+        'description',
         'assigned_agent_id',
         'status',
         'priority',
         'type',
         'branch',
-        'resolution_message',
-        'resolved_at',
-        'requires_manager_approval',
-        'manager_approved',
-        'approved_by_manager_id',
-        'manager_approved_at',
-    ];
-
-    protected $casts = [
-        'resolved_at' => 'datetime',
-        'manager_approved_at' => 'datetime',
-        'requires_manager_approval' => 'boolean',
-        'manager_approved' => 'boolean',
+        'fullName',
+        'email',
+        'contactNumber',
     ];
 
     // Relationships

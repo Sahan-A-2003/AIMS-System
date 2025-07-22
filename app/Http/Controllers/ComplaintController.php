@@ -13,6 +13,9 @@ class ComplaintController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'fullName' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'contactNumber' => 'nullable|string|max:15',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'user_id' => 'required|exists:users,id',
@@ -21,8 +24,6 @@ class ComplaintController extends Controller
             'priority' => 'nullable|string|in:low,medium,high,urgent',
             'type' => 'nullable|string|max:100',
             'branch' => 'nullable|string|max:100',
-            'requires_manager_approval' => 'nullable|boolean',
-            'manager_approved' => 'nullable|boolean',
             
         ]);
 
@@ -37,18 +38,18 @@ class ComplaintController extends Controller
             $complaintId = Complaint::generateComplaintId();
 
             Complaint::create([
+                'fullName' => $request->fullName,
+                'email' => $request->email,
+                'contactNumber' => $request->contactNumber,
                 'complaint_id' => $complaintId,
                 'title' => $request->title,
                 'description' => $request->description,
                 'user_id' => $request->user_id,
                 'assigned_agent_id' => $request->assigned_agent_id,
-                'status' => $request->status ?? 'open',   // default 'open'
+                'status' => $request->status ?? 'open',  
                 'priority' => $request->priority ?? 'medium',
                 'type' => $request->type,
                 'branch' => $request->branch,
-                'requires_manager_approval' => $request->requires_manager_approval ?? false,
-                'manager_approved' => $request->manager_approved ?? false,
-                // You can add more fields if needed
             ]);
 
             return redirect()->route('complaints.index')
@@ -71,9 +72,4 @@ class ComplaintController extends Controller
         return response()->json($complaints);
     }
 
-    public function getComplaints()
-    {
-        $complaints = \App\Models\Complaint::select('id', 'title', 'created_at', 'status', 'priority')->get();
-        return response()->json($complaints);
-    }
 }

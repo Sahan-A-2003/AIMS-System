@@ -8,6 +8,7 @@ const SubmitComplaint = () => {
 
   // Initial Form Data
   const [formData, setFormData] = useState({
+    user_id: user?.id || '',
     fullName: user?.username || '',
     email: '',
     contactNumber: '',

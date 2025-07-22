@@ -6,8 +6,6 @@ const Feedback = () => {
   const user = auth.user;
   const { feedbacks } = usePage().props;
 
-  console.log('Feedbacks from backend:', feedbacks);
-
   const { data, setData, post, processing, errors, reset } = useForm({
     user_id: user?.id || '',
     full_name: user?.name || '',
