@@ -14,12 +14,12 @@ class FeedbackController extends Controller
             'user_id' => 'required|exists:users,id',
             'complaint_id' => 'required|exists:complaints,id',
             'agent_id' => 'nullable|exists:users,id',
-            'full_name' => 'required|string|max:255',
+            'fullName' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'rating' => 'required|integer|between:1,5',
-            'liked_most' => 'nullable|string',
-            'suggestions' => 'nullable|string',
-            'would_recommend' => 'required|boolean',
+            'likeMost' => 'nullable|string',
+            'improvement' => 'nullable|string',
+            'recommend' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -33,12 +33,12 @@ class FeedbackController extends Controller
                 'user_id' => $request->user_id,
                 'complaint_id' => $request->complaint_id,
                 'agent_id' => $request->agent_id,
-                'full_name' => $request->full_name,
+                'full_name' => $request->fullName,
                 'email' => $request->email,
                 'rating' => $request->rating,
-                'liked_most' => $request->liked_most,
-                'suggestions' => $request->suggestions,
-                'would_recommend' => $request->would_recommend,
+                'liked_most' => $request->likeMost,
+                'suggestions' => $request->improvement,
+                'would_recommend' => $request->recommend,
             ]);
 
             return redirect()->back()->with('success', 'Feedback submitted successfully!');
