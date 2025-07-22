@@ -27,7 +27,7 @@ const Worke = () => {
         
           <div data-aos="fade-right" className="w-full md:w-1/2">
             <img
-              src='/images/manager approval.jpg'
+              src='/images/submit from.png'
               alt="manager approval image"
               className="w-full h-auto rounded-2xl object-cover"
             />

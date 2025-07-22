@@ -68,7 +68,6 @@ const SubmitComplaint = () => {
         },
       });
 
-      alert('Complaint submitted successfully!');
       handleClear();
 
       const updated = await axios.get('/complaints-data');
