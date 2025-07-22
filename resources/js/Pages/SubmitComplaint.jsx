@@ -1,40 +1,96 @@
-import React, { useState, useMemo } from 'react';
-import { Link , usePage } from '@inertiajs/react';
-
-const mockComplaints = [
-  { id: 101, title: 'Login issue', submittedDate: '2025-07-10', status: 'Open', priority: 'High' },
-  { id: 102, title: 'Billing error', submittedDate: '2025-07-09', status: 'In Progress', priority: 'Medium' },
-  { id: 103, title: 'Service outage', submittedDate: '2025-07-08', status: 'Closed', priority: 'Low' },
-  { id: 104, title: 'App crash', submittedDate: '2025-07-07', status: 'Open', priority: 'High' },
-  { id: 105, title: 'Slow response', submittedDate: '2025-07-06', status: 'In Progress', priority: 'Medium' },
-  { id: 106, title: 'Incorrect charge', submittedDate: '2025-07-05', status: 'Closed', priority: 'Low' },
-  { id: 107, title: 'Feature request', submittedDate: '2025-07-04', status: 'Open', priority: 'Low' },
-  { id: 108, title: 'Password reset', submittedDate: '2025-07-03', status: 'Closed', priority: 'Medium' },
-  { id: 109, title: 'UI bug', submittedDate: '2025-07-02', status: 'In Progress', priority: 'High' },
-  { id: 110, title: 'Data sync error', submittedDate: '2025-07-01', status: 'Open', priority: 'Medium' },
-];
-
-const statuses = ['All', 'Open', 'In Progress', 'Closed'];
-const priorities = ['All', 'High', 'Medium', 'Low'];
+import React, { useState, useMemo, useEffect } from 'react';
+import { Link, usePage } from '@inertiajs/react';
+import axios from 'axios';
 
 const SubmitComplaint = () => {
-  const [filterStatus, setFilterStatus] = useState('All');
-  const [filterPriority, setFilterPriority] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
   const { auth } = usePage().props;
   const user = auth.user;
 
-  // Filter complaints based on filters and search term
+  // Initial Form Data
+  const [formData, setFormData] = useState({
+    fullName: user?.username || '',
+    email: '',
+    contactNumber: '',
+    branch: '',
+    priority: '',
+    type: '',
+    title: '',
+    description: '',
+  });
+
+  // Complaint List
+  const [complaints, setComplaints] = useState([]);
+
+  // Filters
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [filterPriority, setFilterPriority] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Static filter options — replace with dynamic values if needed
+  const statuses = ['All', 'Open', 'In Progress', 'Resolved'];
+  const priorities = ['All', 'High', 'Medium', 'Low'];
+
+  // Fetch complaints on mount
+  useEffect(() => {
+    axios.get('/complaints-data')
+      .then((response) => setComplaints(response.data))
+      .catch((error) => console.error('Failed to load complaints', error));
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleClear = () => {
+    setFormData({
+      fullName: user?.username || '',
+      email: '',
+      contactNumber: '',
+      branch: '',
+      priority: '',
+      type: '',
+      title: '',
+      description: '',
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+      await axios.post('/submit-complaint', formData, {
+        headers: {
+          'X-CSRF-TOKEN': csrfToken,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      alert('Complaint submitted successfully!');
+      handleClear();
+
+      const updated = await axios.get('/complaints-data');
+      setComplaints(updated.data);
+
+    } catch (error) {
+      console.error(error);
+      alert('Failed to submit complaint.');
+    }
+  };
+
   const filteredComplaints = useMemo(() => {
-    return mockComplaints.filter((complaint) => {
-      const matchesStatus = filterStatus === 'All' || complaint.status === filterStatus;
-      const matchesPriority = filterPriority === 'All' || complaint.priority === filterPriority;
+    return complaints.filter((c) => {
+      const matchesStatus = filterStatus === 'All' || c.status === filterStatus;
+      const matchesPriority = filterPriority === 'All' || c.priority === filterPriority;
       const matchesSearch =
-        complaint.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        complaint.id.toString().includes(searchTerm);
+        c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.id.toString().includes(searchTerm);
+
       return matchesStatus && matchesPriority && matchesSearch;
     });
-  }, [filterStatus, filterPriority, searchTerm]);
+  }, [complaints, filterStatus, filterPriority, searchTerm]);
 
   return (
     <div className="bg-[var(--light-gray-color)] w-full min-h-screen pb-7">
@@ -42,51 +98,75 @@ const SubmitComplaint = () => {
       <div data-aos="fade-up" className="text-center mb-10 bg-white py-10 px-4">
         <h1 className="text-4xl md:text-6xl font-bold text-black">Submit a Complaint</h1>
         <p className="text-md md:text-lg text-gray-600 mt-2">
-          Please fill out the form below to report an issue. Your complaint will be recorded in our system and assigned to the appropriate support team. You'll receive updates via email as it progresses through our resolution workflow.
+          Please fill out the form below to report an issue. Your complaint will be recorded and assigned to the appropriate team.
         </p>
       </div>
 
       {/* Complaint Form */}
       <div className="max-w-5xl text-black mx-auto bg-white shadow-md rounded-lg p-8 mb-16">
         <h2 className="text-xl font-semibold text-center mb-6">Complaint Form</h2>
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* LEFT COLUMN */}
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left column */}
           <div className="space-y-4">
             <div>
               <label className="block mb-1 font-medium">Full Name</label>
               <input
                 type="text"
-                value={user?.username || 'User'}
+                name="fullName"
+                value={formData.fullName}
                 readOnly
-                className="border p-2 rounded w-full bg-gray-100 text-gray-700 cursor-default"
+                className="border p-2 rounded w-full bg-gray-100 cursor-not-allowed text-gray-700"
               />
             </div>
-
             <div>
               <label className="block mb-1 font-medium">Email Address</label>
-              <input type="email" placeholder="Enter your email" className="border p-2 rounded w-full" />
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="border p-2 rounded w-full"
+              />
             </div>
-
             <div>
               <label className="block mb-1 font-medium">Contact Number</label>
-              <input type="text" placeholder="Enter your contact number" className="border p-2 rounded w-full" />
+              <input
+                type="text"
+                name="contactNumber"
+                placeholder="Enter your contact number"
+                value={formData.contactNumber}
+                onChange={handleChange}
+                required
+                className="border p-2 rounded w-full"
+              />
             </div>
-
             <div>
               <label className="block mb-1 font-medium">Branch</label>
-              <select className="border p-2 rounded w-full">
+              <select
+                name="branch"
+                value={formData.branch}
+                onChange={handleChange}
+                required
+                className="border p-2 rounded w-full"
+              >
                 <option value="">Select Branch</option>
                 <option value="Colombo">Colombo</option>
                 <option value="Kegoll">Kegoll</option>
                 <option value="Awissawella">Awissawella</option>
               </select>
             </div>
-
             <div>
               <label className="block mb-1 font-medium">Priority Level</label>
-              <select className="border p-2 rounded w-full">
+              <select
+                name="priority"
+                value={formData.priority}
+                onChange={handleChange}
+                required
+                className="border p-2 rounded w-full"
+              >
                 <option value="">Select Priority</option>
-                {/* Make sure these match the filter values */}
                 <option value="High">High</option>
                 <option value="Medium">Medium</option>
                 <option value="Low">Low</option>
@@ -94,54 +174,73 @@ const SubmitComplaint = () => {
             </div>
           </div>
 
-          {/* RIGHT COLUMN */}
+          {/* Right column */}
           <div className="space-y-4">
             <div>
               <label className="block mb-1 font-medium">Complaint Type</label>
-              <select className="border p-2 rounded w-full">
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                required
+                className="border p-2 rounded w-full"
+              >
                 <option value="">Select Complaint Type</option>
                 <option value="technical">Technical</option>
                 <option value="service">Service</option>
                 <option value="billing">Billing</option>
               </select>
             </div>
-
             <div>
               <label className="block mb-1 font-medium">Complaint Title</label>
-              <input type="text" placeholder="Enter complaint title" className="border p-2 rounded w-full" />
+              <input
+                type="text"
+                name="title"
+                placeholder="Enter complaint title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                className="border p-2 rounded w-full"
+              />
             </div>
-
             <div>
               <label className="block mb-1 font-medium">Complaint Description</label>
-              <textarea placeholder="Enter detailed description" className="border p-2 rounded w-full h-28 md:h-32" />
+              <textarea
+                name="description"
+                placeholder="Enter detailed description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+                className="border p-2 rounded w-full h-28 md:h-32"
+              />
             </div>
           </div>
-        </form>
 
-        {/* Buttons */}
-        <div className="flex flex-col-reverse md:flex-row justify-between mt-8 gap-4">
-          <button
-            type="reset"
-            className="bg-orange-600 hover:opacity-90 text-white font-semibold py-2 px-6 rounded-md"
-          >
-            Clear Form
-          </button>
-          <button
-            type="submit"
-            className="bg-orange-600 hover:opacity-90 text-white font-semibold py-2 px-6 rounded-md"
-          >
-            Submit a Complaint
-          </button>
-        </div>
+          {/* Form Buttons */}
+          <div className="col-span-2 flex flex-col md:flex-row justify-between mt-8 gap-4">
+            <button
+              type="reset"
+              onClick={handleClear}
+              className="bg-orange-600 hover:opacity-90 text-white font-semibold py-2 px-6 rounded-md"
+            >
+              Clear Form
+            </button>
+            <button
+              type="submit"
+              className="bg-orange-600 hover:opacity-90 text-white font-semibold py-2 px-6 rounded-md"
+            >
+              Submit a Complaint
+            </button>
+          </div>
+        </form>
       </div>
 
-      {/* Complaint List Table */}
+      {/* Complaint Table */}
       <div className="max-w-7xl text-black mx-auto p-6 bg-white rounded shadow">
         <h2 className="text-2xl font-bold mb-6">Complaint List</h2>
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row md:items-center md:space-x-6 mb-6 space-y-4 md:space-y-0">
-          {/* Status Filter */}
           <div>
             <label className="block mb-1 font-semibold">Filter by Status</label>
             <select
@@ -150,14 +249,10 @@ const SubmitComplaint = () => {
               className="border rounded p-2 w-48"
             >
               {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
+                <option key={status} value={status}>{status}</option>
               ))}
             </select>
           </div>
-
-          {/* Priority Filter */}
           <div>
             <label className="block mb-1 font-semibold">Filter by Priority</label>
             <select
@@ -166,14 +261,10 @@ const SubmitComplaint = () => {
               className="border rounded p-2 w-48"
             >
               {priorities.map((priority) => (
-                <option key={priority} value={priority}>
-                  {priority}
-                </option>
+                <option key={priority} value={priority}>{priority}</option>
               ))}
             </select>
           </div>
-
-          {/* Search Input */}
           <div className="flex-grow">
             <label className="block mb-1 font-semibold">Search by ID or Title</label>
             <input
@@ -207,30 +298,22 @@ const SubmitComplaint = () => {
                       <Link href={`/complaints/${complaint.id}`}>{complaint.id}</Link>
                     </td>
                     <td className="px-4 py-2 border-b">{complaint.title}</td>
-                    <td className="px-4 py-2 border-b">{complaint.submittedDate}</td>
+                    <td className="px-4 py-2 border-b">{new Date(complaint.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-2 border-b">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          complaint.status === 'Open'
-                            ? 'bg-blue-100 text-blue-800'
-                            : complaint.status === 'In Progress'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}
-                      >
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        complaint.status === 'Open' ? 'bg-blue-100 text-blue-800' :
+                        complaint.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
                         {complaint.status}
                       </span>
                     </td>
                     <td className="px-4 py-2 border-b">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          complaint.priority === 'High'
-                            ? 'bg-red-100 text-red-700'
-                            : complaint.priority === 'Medium'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-green-100 text-green-700'
-                        }`}
-                      >
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        complaint.priority === 'High' ? 'bg-red-100 text-red-700' :
+                        complaint.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-green-100 text-green-700'
+                      }`}>
                         {complaint.priority}
                       </span>
                     </td>

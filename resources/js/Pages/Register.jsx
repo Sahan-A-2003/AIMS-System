@@ -88,17 +88,17 @@ const Register = () => {
           <div className="space-y-4">
             <input name="employeeId" value={formData.employeeId} onChange={handleChange} type="text" placeholder="Employee ID" className="input-style" />
             <select name="role" value={formData.role} onChange={handleChange} className="input-style text-black">
-              <option value="">Select Role</option>
-              <option value="user">User</option>
-              <option value="manager">Manager</option>
-              <option value="agent_level1">Agent - Level 1</option>
-              <option value="agent_level2">Agent - Level 2</option>
+              <option className="text-black" value="">Select Role</option>
+              <option className="text-black" value="user">User</option>
+              <option className="text-black" value="manager">Manager</option>
+              <option className="text-black" value="agent_level1">Agent - Level 1</option>
+              <option className="text-black" value="agent_level2">Agent - Level 2</option>
             </select>
 
             <select name="branch" value={formData.branch} onChange={handleChange} className="input-style text-black">
-              <option value="">Select Branch</option>
-              <option value="1">Colombo</option>
-              <option value="2">Kandy</option>
+              <option className="text-black" value="">Select Branch</option>
+              <option className="text-black" value="1">Colombo</option>
+              <option className="text-black" value="2">Kandy</option>
             </select>
 
             <input name="password" value={formData.password} onChange={handleChange} type="password" placeholder="Password" className="input-style" />

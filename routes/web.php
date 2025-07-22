@@ -7,6 +7,7 @@ use Inertia\Inertia;
 
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\ComplaintController;
 
 
 // Redirect root to landing page
@@ -14,6 +15,7 @@ Route::get('/', function () {
     return redirect()->route('landing');
 })->name('home');
 
+// add data to database
 //post methoad
 Route::post('/sign-up', [RegisterController::class, 'store'])->name('sign-up.store');
 
@@ -21,7 +23,15 @@ Route::post('/sign-up', [RegisterController::class, 'store'])->name('sign-up.sto
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
 //complaint
-Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+Route::post('/submit-complaint', [ComplaintController::class, 'store'])->name('submit-complaint.store');
+Route::get('/complaints-data', [ComplaintController::class, 'getComplaints']);
+
+
+
+//show dATA from data base
+//complaint data
+Route::get('/complaints-data', [ComplaintController::class, 'index']);
+
 
 
 //get method

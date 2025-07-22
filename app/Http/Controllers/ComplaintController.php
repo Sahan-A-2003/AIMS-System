@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use App\Models\Complaint;
+
+class ComplaintController extends Controller
+{
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'user_id' => 'required|exists:users,id',
+            'assigned_agent_id' => 'nullable|exists:users,id',
+            'status' => 'nullable|string|in:open,in_progress,resolved,closed',
+            'priority' => 'nullable|string|in:low,medium,high,urgent',
+            'type' => 'nullable|string|max:100',
+            'branch' => 'nullable|string|max:100',
+            'requires_manager_approval' => 'nullable|boolean',
+            'manager_approved' => 'nullable|boolean',
+            
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            // Generate a new complaint_id using your model method
+            $complaintId = Complaint::generateComplaintId();
+
+            Complaint::create([
+                'complaint_id' => $complaintId,
+                'title' => $request->title,
+                'description' => $request->description,
+                'user_id' => $request->user_id,
+                'assigned_agent_id' => $request->assigned_agent_id,
+                'status' => $request->status ?? 'open',   // default 'open'
+                'priority' => $request->priority ?? 'medium',
+                'type' => $request->type,
+                'branch' => $request->branch,
+                'requires_manager_approval' => $request->requires_manager_approval ?? false,
+                'manager_approved' => $request->manager_approved ?? false,
+                // You can add more fields if needed
+            ]);
+
+            return redirect()->route('complaints.index')
+                            ->with('success', 'Complaint submitted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Complaint creation error: ' . $e->getMessage());
+
+            return redirect()->back()
+                ->with('error', 'Something went wrong. Please try again later.')
+                ->withInput();
+        }
+    }
+
+    public function index()
+    {
+         $complaints = Complaint::where('user_id', auth()->id())
+        ->orderByDesc('created_at')
+        ->get();
+
+        return response()->json($complaints);
+    }
+
+    public function getComplaints()
+    {
+        $complaints = \App\Models\Complaint::select('id', 'title', 'created_at', 'status', 'priority')->get();
+        return response()->json($complaints);
+    }
+}
