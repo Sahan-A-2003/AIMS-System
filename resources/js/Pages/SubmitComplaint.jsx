@@ -300,9 +300,9 @@ const SubmitComplaint = () => {
              
               {filteredComplaints.length > 0 ? (
                 filteredComplaints.map((complaint) => (
-                  <tr key={complaint.complaint_id} className="hover:bg-gray-50">
+                  <tr key={complaint.id} className="hover:bg-gray-50">
                     <td className="px-4 py-2 border-b text-blue-600">
-                      <Link href={`/complaints/${complaint.complaint_id}`}>{complaint.complaint_id}</Link>
+                      <Link href={`/complaints/${complaint.id}`}>{complaint.id}</Link>
                     </td>
                     <td className="px-4 py-2 border-b">{complaint.title}</td>
                     <td className="px-4 py-2 border-b">{new Date(complaint.created_at).toLocaleDateString()}</td>
@@ -325,10 +325,9 @@ const SubmitComplaint = () => {
                       </span>
                     </td>
                     <td className="px-4 py-2 border-b">
-                      console.log(${complaint.id})
                       <Link
                         
-                        href={`/complaints/${complaint.complaint_id}`}
+                        href={`/complaints/${complaint.id}`}
                         className="text-sm text-white bg-orange-600 px-3 py-1 rounded-md hover:brightness-110"
                       >
                         View

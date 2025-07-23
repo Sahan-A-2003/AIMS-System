@@ -42,7 +42,7 @@ class ComplaintController extends Controller
             Complaint::create([
                 'fullName' => $request->fullName,
                 'email' => $request->email,
-                'contactNumber' => $request->contactNumber,
+                'git ' => $request->contactNumber,
                 'complaint_id' => $complaintId,
                 'title' => $request->title,
                 'description' => $request->description,
@@ -71,34 +71,50 @@ class ComplaintController extends Controller
         ->orderByDesc('created_at')
         ->get();
 
+            Log::info('Authenticated User ID: ' . auth()->id());
+
+            // Log the complaints collection
+            Log::info('Complaints fetched:', $complaints->toArray());
+
         return response()->json($complaints);
     }
 
-    public function getInProgressCount()
+    public function getInProgressCount($id)
     {
 
-    $count = DB::table('complaints')
-        ->whereRaw("LOWER(TRIM(status)) = ?", ['in progress'])
-        ->count();
+        $count = DB::table('complaints')
+            ->whereRaw("LOWER(TRIM(status)) = ?", ['in progress'])
+            ->count();
 
-    return response()->json(['count' => $count]);
+        return response()->json(['count' => $count]);
     }
 
-    public function show($complaint_id)
+    // public function show($complaint_id)
+    // {
+    //     // Log::info("Complaint ID received: $complaint_id");
+
+    //     $complaint = Complaint::where('complaint_id', $complaint_id)->first();
+
+    //     // Log::info("Complaint found: " . json_encode($complaint));
+
+    //     if (!$complaint) {
+    //         abort(404, 'Complaint not found');
+    //     }
+
+    //     return Inertia::render('pages/ComplaintDetails', [
+    //         'complaint' => $complaint,
+    //     ]);
+    // }
+
+    public function show($id)
     {
-        // Log::info("Complaint ID received: $complaint_id");
-
-        $complaint = Complaint::where('complaint_id', $complaint_id)->first();
-
-        // Log::info("Complaint found: " . json_encode($complaint));
+        $complaint = Complaint::find($id);
 
         if (!$complaint) {
-            abort(404, 'Complaint not found');
+            return response()->json(['message' => 'Complaint not found'], 404);
         }
 
-        return Inertia::render('pages/ComplaintDetails', [
-            'complaint' => $complaint,
-        ]);
+        return response()->json($complaint);
     }
 
 }
