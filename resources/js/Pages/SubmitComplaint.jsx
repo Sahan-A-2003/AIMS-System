@@ -49,17 +49,32 @@ const SubmitComplaint = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    post('/submit-complaint', {
-      onSuccess: () => {
-        handleClear();
-        fetch('/complaints-data')
-          .then((response) => response.json())
-          .then((data) => setComplaints(data));
-      },
-      onError: () => {
-        alert('Failed to submit complaint. Please check your inputs.');
-      },
-    });
+
+    try {
+      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+      if (!token) {
+        alert('CSRF token not found');
+        return;
+      }
+
+      await axios.post('/submit-complaint', formData, {
+        headers: {
+          'X-CSRF-TOKEN': token,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      handleClear();
+      alert('successfully added complaint.');
+
+      const updated = await axios.get('/complaints-data');
+      setComplaints(updated.data);
+
+    } catch (error) {
+      console.error(error);
+      alert('Failed to submit complaint.');
+    }
   };
 
   const filteredComplaints = useMemo(() => {
@@ -269,7 +284,7 @@ const SubmitComplaint = () => {
             />
           </div>
         </div>
-
+        
         {/* Table */}
         <div className="overflow-x-auto max-h-[600px]">
           <table className="w-full text-left text-sm border border-gray-200 rounded-xl overflow-hidden">
@@ -284,6 +299,7 @@ const SubmitComplaint = () => {
               </tr>
             </thead>
             <tbody>
+             
               {filteredComplaints.length > 0 ? (
                 filteredComplaints.map((complaint) => (
                   <tr key={complaint.id} className="hover:bg-gray-50">
@@ -312,6 +328,7 @@ const SubmitComplaint = () => {
                     </td>
                     <td className="px-4 py-2 border-b">
                       <Link
+                        
                         href={`/complaints/${complaint.id}`}
                         className="text-sm text-white bg-orange-600 px-3 py-1 rounded-md hover:brightness-110"
                       >

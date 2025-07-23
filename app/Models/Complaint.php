@@ -29,6 +29,8 @@ class Complaint extends Model
         'manager_approved_at',
     ];
 
+    protected $table = 'complaints';
+
     // Relationships
     public function user(): BelongsTo
     {

@@ -12,7 +12,7 @@ const Feedback = () => {
     email: user?.email || '',
     liked_most: '',
     suggestions: '',
-    would_recommend: '', // will convert to boolean on submit
+    would_recommend: '', 
     rating: '',
   });
 

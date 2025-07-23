@@ -1,61 +1,23 @@
 import React, { useState } from 'react';
-import { Link, router } from '@inertiajs/react';    
-import { usePage } from '@inertiajs/react';                                                                  
-
-const dummyComplaints = [
-  {
-    id: 'CMP-001',
-    title: 'Unable to access account',
-    name: 'Tharindu Jayasinghe',
-    email: 'tharindu.j@bankmail.com',
-    contact: '0771234567',
-    branch: 'Colombo Fort Branch',
-    priority: 'High',
-    type: 'Technical',
-    status: 'Open',
-    submittedDate: '2025-07-14',
-    assignedAgent: '',
-    resolutionMessage: '',
-    description:
-      'After resetting my password, I’m unable to log into the portal. It shows an error message each time I try.',
-  },
-  {
-    id: 'CMP-002',
-    title: 'Billing error on last invoice',
-    name: 'Nirosha Fernando',
-    email: 'nirosha.f@bankmail.com',
-    contact: '0779876543',
-    branch: 'Kandy Branch',
-    priority: 'Medium',
-    type: 'Billing',
-    status: 'In Progress',
-    submittedDate: '2025-07-15',
-    assignedAgent: 'Adithya Kumar',
-    resolutionMessage: 'We are currently verifying your billing details.',
-    description: 'My invoice shows an extra charge that I did not make.',
-  },
-];
-
+import { Link, router, usePage } from '@inertiajs/react';
+                                                                
 const ComplaintDetails = () => {
-  const { props } = usePage();
-  const id = props.id;
-  const { auth } = usePage().props;
-  const user = auth.user;
 
-  const [complaint, setComplaint] = useState(dummyComplaints.find((c) => c.id === id));
+  const { complaint, auth } = usePage().props;
+  const user = auth.user;
+  console.log("Page props:", usePage().props);
   const [showRejectReason, setShowRejectReason] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
 
   if (!complaint) {
     return (
       <div className="p-6 text-center text-red-600 font-medium">
-        Complaint with ID "{id}" not found.
+      Complaint not found.
       </div>
     );
   }
 
   const handleAssign = () => {
-    setComplaint({ ...complaint, assignedAgent: 'Current Agent Name' });
     alert('Complaint assigned to you.');
   };
 
@@ -164,6 +126,9 @@ const ComplaintDetails = () => {
             >
               Request Manager Approval
             </button>
+            <Link href="/complaints" className="text-blue-600 underline hover:text-blue-800">
+              ← Back to Complaints List
+            </Link>
           </div>
 
           {showRejectReason && (

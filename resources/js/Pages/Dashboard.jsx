@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import axios from 'axios';
 import { 
   FaInbox, 
   FaClock, 
@@ -21,6 +22,18 @@ const Dashboard = () => {
   const { auth } = usePage().props;
   const user = auth.user;
 
+  const [inProgressCount, setInProgressCount] = useState(0);
+
+  useEffect(() => {
+    axios.get('/dashboard')
+      .then((res) => {
+        setInProgressCount(res.data.count);
+      })
+      .catch((err) => {
+        console.error('Failed to load count', err);
+      });
+  }, []);
+
   // Dashboard statistics
   const stats = [
     {
@@ -32,7 +45,7 @@ const Dashboard = () => {
     },
     {
       title: 'In Progress',
-      count: 23,
+      count: inProgressCount,
       icon: <FaTools className="text-yellow-600 text-3xl" />,
       bg: 'bg-yellow-100',
       link: '/complaints'
