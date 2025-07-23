@@ -14,6 +14,7 @@ class Complaint extends Model
         'description',
         'user_id',
         'assigned_agent_id',
+        'level',
         'status',
         'priority',
         'type',

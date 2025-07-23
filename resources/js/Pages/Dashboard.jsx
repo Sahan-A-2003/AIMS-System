@@ -82,13 +82,14 @@ const Dashboard = () => {
       link: '/complaints-tracking',
       bg: 'bg-green-50 hover:bg-green-100'
     },
-    {
+    // Manager Approval only for manager or admin
+    ...(user?.role === 'manager' || user?.role === 'admin' ? [{
       title: 'Manager Approval',
       description: 'Review pending approvals',
       icon: <FaCog className="text-purple-600 text-2xl" />,
       link: '/manager-approval',
       bg: 'bg-purple-50 hover:bg-purple-100'
-    },
+    }] : []),
     {
       title: 'Support',
       description: 'Get help and feedback',
