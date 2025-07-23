@@ -1,89 +1,128 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Link, usePage } from '@inertiajs/react';
-import axios from 'axios';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Head, usePage, useForm, Link } from '@inertiajs/react';
+import { COMPLAINT_TYPES } from '../constants/complaintTypes';
+import { COMPLAINT_PRIORITIES } from '../constants/complaintPriorities';
 
 const SubmitComplaint = () => {
-  const { auth } = usePage().props;
-  const user = auth.user;
-
-  // Initial Form Data
-  const [formData, setFormData] = useState({
-    user_id: user?.id || '',
+  const { user } = usePage().props.auth;
+  const { data, setData, post, get, errors, reset, processing } = useForm({
     fullName: user?.username || '',
     email: '',
     contactNumber: '',
-    branch: '',
-    priority: '',
-    type: '',
     title: '',
     description: '',
+    user_id: user?.id || '',
+    assigned_agent_id: null,
+    status: 'Open',
+    priority: 'Medium',
+    type: 'Other',
+    branch: '',
   });
 
-  // Complaint List
   const [complaints, setComplaints] = useState([]);
-
-  // Filters
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Static filter options — replace with dynamic values if needed
   const statuses = ['All', 'Open', 'In Progress', 'Resolved'];
   const priorities = ['All', 'High', 'Medium', 'Low'];
 
   // Fetch complaints on mount
   useEffect(() => {
-    axios.get('/complaints-data')
-      .then((response) => setComplaints(response.data))
-      .catch((error) => console.error('Failed to load complaints', error));
+    const fetchComplaints = async () => {
+      try {
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch('/complaints-data', {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': token,
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setComplaints(data);
+        } else {
+          console.error('Failed to load complaints:', response.status);
+        }
+      } catch (error) {
+        console.error('Failed to load complaints', error);
+      }
+    };
+
+    fetchComplaints();
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setData(e.target.name, e.target.value);
   };
 
   const handleClear = () => {
-    setFormData({
-      fullName: user?.username || '',
-      email: '',
-      contactNumber: '',
-      branch: '',
-      priority: '',
-      type: '',
-      title: '',
-      description: '',
-    });
+    reset();
+    setData('fullName', user?.username || '');
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    try {
-      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-      if (!token) {
-        alert('CSRF token not found');
-        return;
+    setIsSubmitting(true);
+    
+    console.log('Submitting complaint with data:', data);
+    
+    // Use fetch instead of Inertia post for better control
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    fetch('/submit-complaint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': token,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      console.log('Response status:', response.status);
+      return response.json();
+    })
+    .then(result => {
+      console.log('Response result:', result);
+      setIsSubmitting(false);
+      if (result.success) {
+        alert(result.message);
+        handleClear();
+        // Refresh complaints list after successful submission
+        const fetchComplaints = async () => {
+          try {
+            const response = await fetch('/complaints-data', {
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': token,
+              },
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              setComplaints(data);
+            }
+          } catch (error) {
+            console.error('Failed to refresh complaints', error);
+          }
+        };
+        
+        fetchComplaints();
+      } else {
+        alert(result.message || 'Failed to submit complaint');
       }
-
-      await axios.post('/submit-complaint', formData, {
-        headers: {
-          'X-CSRF-TOKEN': token,
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-      });
-
-      handleClear();
-      alert('successfully added complaint.');
-
-      const updated = await axios.get('/complaints-data');
-      setComplaints(updated.data);
-
-    } catch (error) {
-      console.error(error);
-      alert('Failed to submit complaint.');
-    }
+    })
+    .catch(error => {
+      console.error('Error submitting complaint:', error);
+      setIsSubmitting(false);
+      alert('Failed to submit complaint. Please try again.');
+    });
   };
 
   const filteredComplaints = useMemo(() => {
@@ -92,7 +131,7 @@ const SubmitComplaint = () => {
       const matchesPriority = filterPriority === 'All' || c.priority === filterPriority;
       const matchesSearch =
         c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.id.toString().includes(searchTerm);
+        c.complaint_id.toString().includes(searchTerm);
 
       return matchesStatus && matchesPriority && matchesSearch;
     });
@@ -119,7 +158,7 @@ const SubmitComplaint = () => {
               <input
                 type="text"
                 name="fullName"
-                value={formData.fullName}
+                value={data.fullName}
                 readOnly
                 className="border p-2 rounded w-full bg-gray-100 cursor-not-allowed text-gray-700"
               />
@@ -130,11 +169,12 @@ const SubmitComplaint = () => {
                 type="email"
                 name="email"
                 placeholder="Enter your email"
-                value={formData.email}
+                value={data.email}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               />
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Contact Number</label>
@@ -142,17 +182,18 @@ const SubmitComplaint = () => {
                 type="text"
                 name="contactNumber"
                 placeholder="Enter your contact number"
-                value={formData.contactNumber}
+                value={data.contactNumber}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               />
+              {errors.contactNumber && <p className="text-red-500 text-sm mt-1">{errors.contactNumber}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Branch</label>
               <select
                 name="branch"
-                value={formData.branch}
+                value={data.branch}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
@@ -162,21 +203,23 @@ const SubmitComplaint = () => {
                 <option value="Kegoll">Kegoll</option>
                 <option value="Awissawella">Awissawella</option>
               </select>
+              {errors.branch && <p className="text-red-500 text-sm mt-1">{errors.branch}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Priority Level</label>
               <select
                 name="priority"
-                value={formData.priority}
+                value={data.priority}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               >
                 <option value="">Select Priority</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                {COMPLAINT_PRIORITIES.map((priority) => (
+                  <option key={priority} value={priority}>{priority}</option>
+                ))}
               </select>
+              {errors.priority && <p className="text-red-500 text-sm mt-1">{errors.priority}</p>}
             </div>
           </div>
 
@@ -186,16 +229,17 @@ const SubmitComplaint = () => {
               <label className="block mb-1 font-medium">Complaint Type</label>
               <select
                 name="type"
-                value={formData.type}
+                value={data.type}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               >
                 <option value="">Select Complaint Type</option>
-                <option value="technical">Technical</option>
-                <option value="service">Service</option>
-                <option value="billing">Billing</option>
+                {COMPLAINT_TYPES.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
               </select>
+              {errors.type && <p className="text-red-500 text-sm mt-1">{errors.type}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Complaint Title</label>
@@ -203,22 +247,24 @@ const SubmitComplaint = () => {
                 type="text"
                 name="title"
                 placeholder="Enter complaint title"
-                value={formData.title}
+                value={data.title}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full"
               />
+              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Complaint Description</label>
               <textarea
                 name="description"
                 placeholder="Enter detailed description"
-                value={formData.description}
+                value={data.description}
                 onChange={handleChange}
                 required
                 className="border p-2 rounded w-full h-28 md:h-32"
               />
+              {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
             </div>
           </div>
 
@@ -233,9 +279,10 @@ const SubmitComplaint = () => {
             </button>
             <button
               type="submit"
-              className="bg-orange-600 hover:opacity-90 text-white font-semibold py-2 px-6 rounded-md"
+              disabled={isSubmitting}
+              className="bg-orange-600 hover:opacity-90 text-white font-semibold py-2 px-6 rounded-md disabled:opacity-50"
             >
-              Submit a Complaint
+              {isSubmitting ? 'Submitting...' : 'Submit a Complaint'}
             </button>
           </div>
         </form>
@@ -293,6 +340,7 @@ const SubmitComplaint = () => {
                 <th className="px-4 py-3 border-b">Submitted Date</th>
                 <th className="px-4 py-3 border-b">Status</th>
                 <th className="px-4 py-3 border-b">Priority</th>
+                <th className="px-4 py-3 border-b">Agent</th>
                 <th className="px-4 py-3 border-b">Actions</th>
               </tr>
             </thead>
@@ -324,6 +372,7 @@ const SubmitComplaint = () => {
                         {complaint.priority}
                       </span>
                     </td>
+                    <td className="px-4 py-2 border-b">{complaint.assigned_agent && complaint.assigned_agent.name ? complaint.assigned_agent.name : ''}</td>
                     <td className="px-4 py-2 border-b">
                       <Link
                         
@@ -337,7 +386,7 @@ const SubmitComplaint = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center py-4 text-gray-500">
+                  <td colSpan="7" className="text-center py-4 text-gray-500">
                     No complaints found.
                   </td>
                 </tr>

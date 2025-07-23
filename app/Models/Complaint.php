@@ -12,8 +12,9 @@ class Complaint extends Model
         'complaint_id',
         'title',
         'description',
-        'description',
+        'user_id',
         'assigned_agent_id',
+        'level',
         'status',
         'priority',
         'type',
@@ -21,6 +22,12 @@ class Complaint extends Model
         'fullName',
         'email',
         'contactNumber',
+        'resolution_message',
+        'resolved_at',
+        'requires_manager_approval',
+        'manager_approved',
+        'approved_by_manager_id',
+        'manager_approved_at',
     ];
 
     protected $table = 'complaints';

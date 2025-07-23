@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ComplaintController;
+use Illuminate\Support\Facades\DB;
 
 
 // Redirect root to landing page
@@ -26,27 +27,18 @@ Route::post('/sign-up', [RegisterController::class, 'store'])->name('sign-up.sto
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
 //complaint
-Route::post('/submit-complaint', [ComplaintController::class, 'store'])->name('submit-complaint.store');
+Route::middleware(['auth'])->group(function () {
+    Route::post('/submit-complaint', [ComplaintController::class, 'store'])->name('submit-complaint.store');
+    Route::get('/complaints/{complaint_id}', [ComplaintController::class, 'show']);
+    Route::get('/complaints/{id}/escalate', [ComplaintController::class, 'escalate'])->name('complaint.escalate');
+});
+
+// Allow complaints-data without auth for testing
 Route::get('/complaints-data', [ComplaintController::class, 'getComplaints']);
 
-
-
 //show dATA from data base
-//complaint data
-Route::get('/complaints-data', [ComplaintController::class, 'index']);
-
 // feedback data
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
-
-//complaint detailes
-Route::get('/complaints/{complaint_id}', [ComplaintController::class, 'show']);
-
-// escalate complaint from
-Route::get('/complaints/{id}/escalate', [ComplaintController::class, 'escalate'])->name('complaint.escalate');
-
-//dasborde routes
-Route::get('/dashboard', [ComplaintController::class, 'getInProgressCount']);
-
 
 
 
@@ -116,17 +108,7 @@ Route::get('/manager-approval', function () {
     return Inertia::render('ManagerApproval');
 })->name('manager-approval');
 
-// Complaint details view
-Route::get('/complaints/{id}', function ($id) {
-    return Inertia::render('ComplaintDetails', ['id' => $id]);
-})->name('complaint.details');
 
-// Escalation form for complaints
-Route::get('/complaints/{id}/escalate', function ($id) {
-    return Inertia::render('EscalationForm', [
-        'id' => $id,
-    ]);
-})->name('complaint.escalate');
 
 Route::get('/escalated-complaint/{id}/request-manager-approval', function ($id) {
     return Inertia::render('ManagerRequestForm', ['id' => $id]);
@@ -168,5 +150,49 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/permission-management/{permission}', [PermissionController::class, 'update'])->name('permission-management.update');
     Route::delete('/permission-management/{permission}', [PermissionController::class, 'destroy'])->name('permission-management.destroy');
 });
+
+// Test route to check database
+Route::get('/test-db', function () {
+    try {
+        $count = DB::table('complaints')->count();
+        return response()->json(['status' => 'success', 'complaints_count' => $count]);
+    } catch (Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+});
+
+// Test complaint creation
+Route::get('/test-complaint', function () {
+    try {
+        $complaint = new App\Models\Complaint();
+        $complaint->complaint_id = 'CMP-TEST-' . time();
+        $complaint->title = 'Test Complaint';
+        $complaint->description = 'Test Description';
+        $complaint->user_id = 1;
+        $complaint->fullName = 'Test User';
+        $complaint->email = 'test@test.com';
+        $complaint->save();
+        
+        return response()->json([
+            'status' => 'success', 
+            'message' => 'Test complaint created',
+            'complaint_id' => $complaint->id
+        ]);
+    } catch (Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+});
+
+// Paginated complaints endpoint
+Route::get('/complaints-paginated', [ComplaintController::class, 'paginatedComplaints']);
+
+// User complaints endpoint
+Route::get('/user-complaints', [ComplaintController::class, 'getUserComplaints']);
+
+// Get complaint by ID as JSON (for tracking)
+Route::get('/complaint-data/{id}', [ComplaintController::class, 'getComplaintById']);
+
+// Assign complaint to current user
+Route::post('/complaints/{id}/assign-to-me', [ComplaintController::class, 'assignToMe'])->middleware('auth');
 
 require __DIR__.'/auth.php';
