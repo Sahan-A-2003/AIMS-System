@@ -105,95 +105,95 @@ const EscalationForm = () => {
 
   if (loading) {
     return (
-      <div className="w-full py-7 bg-white">
-        <div className="p-6 max-w-2xl bg-white mx-auto text-black rounded-2xl shadow-xl">
-          <div className="text-center">Loading complaint data...</div>
+      <div className="w-full py-4 bg-white">
+        <div className="p-4 max-w-2xl bg-white mx-auto text-black rounded-lg shadow-md">
+          <div className="text-center text-sm">Loading complaint data...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full py-7 bg-white">
-      <div className="p-6 max-w-2xl bg-white mx-auto text-black rounded-2xl shadow-xl">
-        <h1 className="text-2xl font-bold mb-6 text-[var(--dark-black-color)]">
+    <div className="w-full py-4 bg-white">
+      <div className="p-4 max-w-2xl bg-white mx-auto text-black rounded-lg shadow-md">
+        <h1 className="text-xl font-bold mb-4 text-[var(--dark-black-color)]">
           Escalate Complaint (ID: {complaint?.complaint_id || id})
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {/* Escalation Owner */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="w-full md:w-1/3 font-medium">Escalation Owner:</label>
+            <label className="w-full md:w-1/3 font-medium text-sm">Escalation Owner:</label>
             <input
               type="text"
               name="owner"
               value={formData.owner}
               readOnly
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
+              className="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 bg-gray-100 text-sm"
               required
             />
           </div>
 
           {/* Complaint Title */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="w-full md:w-1/3 font-medium">Complaint Title:</label>
+            <label className="w-full md:w-1/3 font-medium text-sm">Complaint Title:</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               readOnly
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
+              className="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 bg-gray-100 text-sm"
               required
             />
           </div>
 
           {/* Original Description */}
           <div className="flex flex-col md:flex-row md:items-start gap-2">
-            <label className="w-full md:w-1/3 font-medium pt-2">Original Description:</label>
+            <label className="w-full md:w-1/3 font-medium pt-1 text-sm">Original Description:</label>
             <textarea
               name="description"
               value={formData.description}
               readOnly
-              rows={4}
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
+              rows={3}
+              className="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 bg-gray-100 text-sm"
               required
             />
           </div>
 
           {/* Complaint Type */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="w-full md:w-1/3 font-medium">Complaint Type:</label>
+            <label className="w-full md:w-1/3 font-medium text-sm">Complaint Type:</label>
             <input
               type="text"
               name="type"
               value={formData.type}
               readOnly
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
+              className="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 bg-gray-100 text-sm"
               required
             />
           </div>
 
           {/* Priority */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="w-full md:w-1/3 font-medium">Priority:</label>
+            <label className="w-full md:w-1/3 font-medium text-sm">Priority:</label>
             <input
               type="text"
               name="priority"
               value={formData.priority}
               readOnly
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
+              className="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 bg-gray-100 text-sm"
               required
             />
           </div>
 
           {/* Escalation Reason */}
           <div className="flex flex-col md:flex-row md:items-start gap-2">
-            <label className="w-full md:w-1/3 font-medium pt-2">Escalation Reason:</label>
+            <label className="w-full md:w-1/3 font-medium pt-1 text-sm">Escalation Reason:</label>
             <textarea
               name="escalation_reason"
               value={formData.escalation_reason}
               onChange={handleChange}
-              rows={4}
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
+              rows={3}
+              className="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 text-sm"
               placeholder="Provide reason for escalation"
               required
             />
@@ -201,12 +201,12 @@ const EscalationForm = () => {
 
           {/* Category */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="w-full md:w-1/3 font-medium">Category:</label>
+            <label className="w-full md:w-1/3 font-medium text-sm">Category:</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
+              className="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 text-sm"
               required
             >
               <option value="">Select Category</option>
@@ -221,18 +221,18 @@ const EscalationForm = () => {
           </div>
 
           {/* Buttons */}
-          <div className="flex justify-end gap-4 pt-4">
+          <div className="flex justify-end gap-3 pt-3">
             <button
               type="button"
               onClick={handleCancel}
-              className="bg-gray-300 text-black px-5 py-2 rounded-md hover:bg-gray-400 transition"
+              className="bg-gray-300 text-black px-4 py-1.5 rounded text-sm hover:bg-gray-400 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="bg-[var(--orange-color)] text-white font-semibold px-5 py-2 rounded-md 
+              className="bg-[var(--orange-color)] text-white font-semibold px-4 py-1.5 rounded text-sm 
                         hover:opacity-80 hover:text-black transition-all duration-300 ease-in-out disabled:opacity-50"
             >
               {submitting ? 'Escalating...' : 'Escalate'}

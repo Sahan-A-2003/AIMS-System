@@ -136,11 +136,52 @@ class ComplaintController extends Controller
 
         $query = Complaint::with(['user', 'assignedAgent'])->orderBy('created_at', 'desc');
 
-        if (in_array($user->role, ['agent_level1', 'agent_level2'])) {
+        // Role-based visibility filtering
+        if ($user->role === 'agent_level1') {
+            // Level 1 agents can only see complaints at level 0 (new) and level 1 (assigned to them)
             $query->where(function ($q) use ($user) {
-                $q->whereNull('assigned_agent_id')
-                  ->orWhere('assigned_agent_id', $user->id);
+                $q->where('level', 0)  // New complaints
+                  ->orWhere(function ($subQ) use ($user) {
+                      $subQ->where('level', 1)
+                           ->where(function ($level1Q) use ($user) {
+                               $level1Q->whereNull('assigned_agent_id')
+                                     ->orWhere('assigned_agent_id', $user->id);
+                           });
+                  });
             });
+        } elseif ($user->role === 'agent_level2') {
+            // Level 2 agents can see complaints at level 2 (escalated) and level 5 (manager approved)
+            $query->where(function ($q) use ($user) {
+                $q->where(function ($level2Q) use ($user) {
+                    $level2Q->where('level', 2)
+                            ->where(function ($assignedQ) use ($user) {
+                                $assignedQ->whereNull('assigned_agent_id')
+                                        ->orWhere('assigned_agent_id', $user->id);
+                            });
+                })->orWhere(function ($level5Q) use ($user) {
+                    $level5Q->where('level', 5) // Manager approved complaints
+                            ->where(function ($assignedQ) use ($user) {
+                                $assignedQ->whereNull('assigned_agent_id')
+                                        ->orWhere('assigned_agent_id', $user->id);
+                            });
+                });
+            });
+        } elseif ($user->role === 'manager') {
+            // Managers can only see complaints at level 3 (pending manager approval)
+            $query->where(function ($q) use ($user) {
+                $q->where('level', 3)
+                  ->where('requires_manager_approval', true)
+                  ->where(function ($managerQ) use ($user) {
+                      $managerQ->whereNull('assigned_agent_id')
+                              ->orWhere('assigned_agent_id', $user->id);
+                  });
+            });
+        } elseif ($user->role === 'admin') {
+            // Admins can see all complaints
+            // No additional filtering needed
+        } else {
+            // For other roles (like 'user'), show only their own complaints
+            $query->where('user_id', $user->id);
         }
 
         $complaints = $query->paginate($perPage);
@@ -223,7 +264,12 @@ class ComplaintController extends Controller
         if ($user->role === 'agent_level1') {
             $complaint->level = 1;
         } elseif ($user->role === 'agent_level2') {
-            $complaint->level = 2;
+            // If complaint is at level 5 (manager approved), keep it at level 5
+            if ($complaint->level === 5) {
+                $complaint->level = 5; // Keep at manager approved level
+            } else {
+                $complaint->level = 2; // Normal level 2 assignment
+            }
         } elseif ($user->role === 'manager') {
             // If manager is assigning a complaint pending approval, keep it at level 3
             if ($complaint->requires_manager_approval) {
@@ -264,6 +310,36 @@ class ComplaintController extends Controller
             return response()->json(['success' => true, 'message' => 'Complaint escalated to Level 2.']);
         } else {
             return redirect()->back()->with('success', 'Complaint escalated to Level 2.');
+        }
+    }
+
+    // Manager approves complaint (level 5 - ready for level 2 completion)
+    public function approveByManager($id, Request $request)
+    {
+        $complaint = Complaint::findOrFail($id);
+        $complaint->level = 5; // Manager approved - ready for level 2 completion
+        $complaint->status = 'Manager Approved';
+        $complaint->requires_manager_approval = false;
+        $complaint->manager_approved = true;
+        $complaint->approved_by_manager_id = auth()->user()->id;
+        $complaint->manager_approved_at = now();
+        $complaint->assigned_agent_id = null; // Unassign so level 2 agent can assign
+        
+        // Add approval details if provided
+        if ($request->has('approval_notes')) {
+            $complaint->approval_notes = $request->approval_notes;
+        }
+        
+        $complaint->save();
+        
+        // Send notification email
+        $this->notificationService->sendComplaintApprovedNotification($complaint, auth()->user()->name);
+        
+        // Return appropriate response based on request method
+        if ($request->isMethod('post')) {
+            return response()->json(['success' => true, 'message' => 'Complaint approved by manager. Ready for Level 2 completion.']);
+        } else {
+            return redirect()->back()->with('success', 'Complaint approved by manager. Ready for Level 2 completion.');
         }
     }
 

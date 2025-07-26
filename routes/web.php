@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/complaints/{id}/escalate', [ComplaintController::class, 'escalate'])->name('complaint.escalate.post');
     Route::post('/complaints/{id}/complete', [ComplaintController::class, 'complete'])->name('complaint.complete');
     Route::post('/complaints/{id}/request-manager-approval', [ComplaintController::class, 'requestManagerApproval'])->name('complaint.request-manager-approval');
+    Route::post('/complaints/{id}/approve-by-manager', [ComplaintController::class, 'approveByManager'])->name('complaint.approve-by-manager');
     Route::post('/complaints/{id}/reject', [ComplaintController::class, 'reject'])->name('complaint.reject');
 });
 
@@ -233,5 +235,13 @@ Route::get('/complaint-db/{id}', [ComplaintController::class, 'getComplaintByDbI
 
 // Assign complaint to current user
 Route::post('/complaints/{id}/assign-to-me', [ComplaintController::class, 'assignToMe'])->middleware('auth');
+
+// Report Routes (Admin Only)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/statistics', [ReportController::class, 'getComplaintStatistics'])->name('reports.statistics');
+    Route::get('/reports/detailed', [ReportController::class, 'getDetailedReport'])->name('reports.detailed');
+    Route::get('/reports/export', [ReportController::class, 'exportReport'])->name('reports.export');
+});
 
 require __DIR__.'/auth.php';

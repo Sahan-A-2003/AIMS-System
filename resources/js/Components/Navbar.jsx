@@ -11,21 +11,26 @@ const Navbar = () => {
     setMenuOpen(!menuOpen);
   };
 
+  // Determine the home route based on authentication status
+  const homeRoute = user ? route('dashboard') : route('landing');
+
   return (
     <nav className="sticky top-0 left-0 w-full z-50 bg-[var(--light-black-color)] text-[var(--white-color)] border-b border-[var(--gray-color)] shadow-sm">
       <div className="flex items-center justify-between px-6 py-4">
 
         {/* Logo and Brand */}
         <div className="flex items-center gap-4">
-                  <a href={route('landing')}>
-          <img src="/icons/Logo.svg" alt="AIMS Logo" className="h-8 cursor-pointer" />
-        </a>
-          <p className="text-3xl text-white font-semibold cursor-pointer">AIMS</p>
+          <Link href={homeRoute}>
+            <img src="/icons/Logo.svg" alt="AIMS Logo" className="h-8 cursor-pointer" />
+          </Link>
+          <Link href={homeRoute}>
+            <p className="text-3xl text-white font-semibold cursor-pointer">AIMS</p>
+          </Link>
         </div>
 
         <ul className="hidden md:flex items-center gap-6 text-base font-medium">
           <li>
-            <Link href={route('landing')} className="hover:text-[var(--orange-color)] transition">Home</Link>
+            <Link href={homeRoute} className="hover:text-[var(--orange-color)] transition">Home</Link>
           </li>
           <li>
             <Link href={route('about')} className="hover:text-[var(--orange-color)] transition">About</Link>
@@ -36,11 +41,6 @@ const Navbar = () => {
           {['agent_level1', 'admin'].includes(user?.role) && (
             <li>
               <Link href={route('complaints')} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
-            </li>
-          )}
-          {['manager', 'admin'].includes(user?.role) && (
-            <li>
-              <Link href={route('manager-approval')} className="hover:text-[var(--orange-color)] transition">Manager Approval</Link>
             </li>
           )}
           <li>
@@ -137,16 +137,11 @@ const Navbar = () => {
         } transition-transform duration-300 z-40 shadow-lg`}
       >
         <div className="flex flex-col p-6 space-y-4 pt-16">
-          <Link href={route('landing')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Home</Link>
+          <Link href={homeRoute} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Home</Link>
           <Link href={route('about')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">About</Link>
           <Link href={route('worke')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">How It Works</Link>
           {['agent_level1', 'admin'].includes(user?.role) && (
-            <Link href={route('complaints')} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
-          )}
-          {['manager', 'admin'].includes(user?.role) && (
-            <li>
-              <Link href={route('manager-approval')} className="hover:text-[var(--orange-color)] transition">Manager Approval</Link>
-            </li>
+            <Link href={route('complaints')} onClick={toggleMenu} className="hover:text-[var(--orange-color)] transition">Complaints</Link>
           )}
           <Link href={route('blog')} onClick={toggleMenu} className="hover:text-[var(--orange-color)]">Blog</Link>
 

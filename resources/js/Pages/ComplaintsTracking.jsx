@@ -87,18 +87,18 @@ const ComplaintsTracking = () => {
   });
 
   return (
-    <div className="w-full bg-white p-6">
-      <div data-aos="fade-up" className="bg-white shadow-md cursor-default rounded-2xl p-6 mb-8 border border-gray-200">
+    <div className="w-full bg-white p-4">
+      <div data-aos="fade-up" className="bg-white shadow-md cursor-default rounded-xl p-4 mb-6 border border-gray-200">
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-[var(--orange-color)] to-[var(--dark-black-color)] bg-clip-text text-transparent">
+          <h1 className="text-2xl font-extrabold bg-gradient-to-r from-[var(--orange-color)] to-[var(--dark-black-color)] bg-clip-text text-transparent">
             Track Your Complaints
           </h1>
-          <p className="text-gray-600 text-sm mt-2">
+          <p className="text-gray-600 text-xs mt-2">
             Use the reference ID to locate your issue or view all your complaints below.
           </p>
 
           {/* Search by Complaint ID */}
-          <div className="relative mt-6 mx-auto w-full md:w-[400px]">
+          <div className="relative mt-4 mx-auto w-full md:w-[350px]">
             <input
               type="text"
               placeholder="Enter Complaint ID"
@@ -109,35 +109,35 @@ const ComplaintsTracking = () => {
                   handleSearchById();
                 }
               }}
-              className="border border-gray-300 text-black px-4 py-2 pl-10 rounded-4xl w-full"
+              className="border border-gray-300 text-black px-4 py-2 pl-10 rounded-4xl w-full text-sm"
             />
             <img
               src='/icons/search.svg'
               alt="Search"
-              className="absolute left-3 top-2.5 w-5 h-5 opacity-70 cursor-pointer"
+              className="absolute left-3 top-2.5 w-4 h-4 opacity-70 cursor-pointer"
               onClick={handleSearchById}
             />
           </div>
-          {error && <p className="text-red-500 mt-2">{error}</p>}
+          {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
         </div>
       </div>
 
-      <div className="mt-10">
-        <h2 data-aos="fade-up" className="text-xl font-semibold mb-4 text-[var(--dark-black-color)]">
+      <div className="mt-8">
+        <h2 data-aos="fade-up" className="text-lg font-semibold mb-3 text-[var(--dark-black-color)]">
           Your Complaints
         </h2>
 
         {/* Filters */}
-        <div data-aos="fade-up" className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 text-black">
+        <div data-aos="fade-up" className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4 text-black">
           <input
             type="text"
             placeholder="Search title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 px-3 py-2 rounded-md w-full"
+            className="border border-gray-300 px-3 py-2 rounded-md w-full text-sm"
           />
           <select
-            className="border border-gray-300 px-3 py-2 rounded-md"
+            className="border border-gray-300 px-3 py-2 rounded-md text-sm"
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
           >
@@ -149,7 +149,7 @@ const ComplaintsTracking = () => {
             <option>Closed</option>
           </select>
           <select
-            className="border border-gray-300 px-3 py-2 rounded-md"
+            className="border border-gray-300 px-3 py-2 rounded-md text-sm"
             value={filters.priority}
             onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
           >
@@ -159,7 +159,7 @@ const ComplaintsTracking = () => {
             ))}
           </select>
           <select
-            className="border border-gray-300 px-3 py-2 rounded-md"
+            className="border border-gray-300 px-3 py-2 rounded-md text-sm"
             value={filters.branch}
             onChange={(e) => setFilters({ ...filters, branch: e.target.value })}
           >
@@ -169,7 +169,7 @@ const ComplaintsTracking = () => {
             <option>Galle</option>
           </select>
           <select
-            className="border border-gray-300 px-3 py-2 rounded-md"
+            className="border border-gray-300 px-3 py-2 rounded-md text-sm"
             value={filters.type}
             onChange={(e) => setFilters({ ...filters, type: e.target.value })}
           >
@@ -182,31 +182,31 @@ const ComplaintsTracking = () => {
 
         {/* Table */}
         <div data-aos="fade" className="overflow-x-auto text-black">
-          <table className="w-full text-sm text-left border border-gray-200 rounded-xl overflow-hidden">
+          <table className="w-full text-xs text-left border border-gray-200 rounded-lg overflow-hidden">
             <thead className="bg-[var(--light-gray-color)] text-gray-700 font-semibold">
               <tr>
-                <th className="px-4 py-3 border-b">Complaint ID</th>
-                <th className="px-4 py-3 border-b">Title</th>
-                <th className="px-4 py-3 border-b">Submitted Date</th>
-                <th className="px-4 py-3 border-b">Status</th>
-                <th className="px-4 py-3 border-b">Priority</th>
-                <th className="px-4 py-3 border-b">Level</th>
-                <th className="px-4 py-3 border-b">Assigned Agent</th>
-                <th className="px-4 py-3 border-b">Actions</th>
+                <th className="px-3 py-2 border-b">Complaint ID</th>
+                <th className="px-3 py-2 border-b">Title</th>
+                <th className="px-3 py-2 border-b">Submitted Date</th>
+                <th className="px-3 py-2 border-b">Status</th>
+                <th className="px-3 py-2 border-b">Priority</th>
+                <th className="px-3 py-2 border-b">Level</th>
+                <th className="px-3 py-2 border-b">Assigned Agent</th>
+                <th className="px-3 py-2 border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="8" className="text-center py-4">Loading...</td></tr>
+                <tr><td colSpan="8" className="text-center py-3">Loading...</td></tr>
               ) : filteredComplaints.length > 0 ? (
                 filteredComplaints.map((complaint) => (
                   <tr key={complaint.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 border-b text-blue-600">
+                    <td className="px-3 py-2 border-b text-blue-600">
                       <Link href={`/complaints/${complaint.id}`}>{complaint.complaint_id || complaint.id}</Link>
                     </td>
-                    <td className="px-4 py-2 border-b">{complaint.title}</td>
-                    <td className="px-4 py-2 border-b">{new Date(complaint.created_at).toLocaleDateString()}</td>
-                    <td className="px-4 py-2 border-b">
+                    <td className="px-3 py-2 border-b">{complaint.title}</td>
+                    <td className="px-3 py-2 border-b">{new Date(complaint.created_at).toLocaleDateString()}</td>
+                    <td className="px-3 py-2 border-b">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         complaint.status === 'Open' ? 'bg-blue-100 text-blue-800' :
                         complaint.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
@@ -217,7 +217,7 @@ const ComplaintsTracking = () => {
                         {complaint.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2 border-b">
+                    <td className="px-3 py-2 border-b">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         complaint.priority === 'High' ? 'bg-red-100 text-red-700' :
                         complaint.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
@@ -226,7 +226,7 @@ const ComplaintsTracking = () => {
                         {complaint.priority}
                       </span>
                     </td>
-                    <td className="px-4 py-2 border-b">
+                    <td className="px-3 py-2 border-b">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         complaint.level === 0 ? 'bg-gray-100 text-gray-800' :
                         complaint.level === 1 ? 'bg-blue-100 text-blue-800' :
@@ -239,11 +239,11 @@ const ComplaintsTracking = () => {
                         Level {complaint.level}
                       </span>
                     </td>
-                    <td className="px-4 py-2 border-b">{complaint.assigned_agent && complaint.assigned_agent.name ? complaint.assigned_agent.name : 'Unassigned'}</td>
-                    <td className="px-4 py-2 border-b">
+                    <td className="px-3 py-2 border-b">{complaint.assigned_agent && complaint.assigned_agent.name ? complaint.assigned_agent.name : 'Unassigned'}</td>
+                    <td className="px-3 py-2 border-b">
                       <Link
                         href={`/complaints/${complaint.id}`}
-                        className="text-sm text-white bg-[var(--orange-color)] px-3 py-1 rounded-md hover:brightness-110"
+                        className="text-xs text-white bg-[var(--orange-color)] px-2 py-1 rounded-md hover:brightness-110"
                       >
                         View
                       </Link>
@@ -252,7 +252,7 @@ const ComplaintsTracking = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center py-4 text-gray-500">
+                  <td colSpan="8" className="text-center py-3 text-gray-500">
                     No complaints found.
                   </td>
                 </tr>
@@ -262,19 +262,19 @@ const ComplaintsTracking = () => {
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex justify-center items-center gap-2 mt-4">
+        <div className="flex justify-center items-center gap-2 mt-3">
           <button
             onClick={() => handlePageChange(pagination.current_page - 1)}
             disabled={pagination.current_page === 1}
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50 text-sm"
           >
             Prev
           </button>
-          <span>Page {pagination.current_page} of {pagination.last_page}</span>
+          <span className="text-sm">Page {pagination.current_page} of {pagination.last_page}</span>
           <button
             onClick={() => handlePageChange(pagination.current_page + 1)}
             disabled={pagination.current_page === pagination.last_page}
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50 text-sm"
           >
             Next
           </button>

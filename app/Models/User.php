@@ -66,6 +66,12 @@ class User extends Authenticatable
         return $this->hasMany(Complaint::class, 'assigned_agent_id');
     }
 
+    public function resolvedComplaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class, 'assigned_agent_id')
+            ->where('status', 'Resolved');
+    }
+
     public function feedback(): HasMany
     {
         return $this->hasMany(Feedback::class);

@@ -3,14 +3,22 @@ import { Link, router, usePage } from '@inertiajs/react';
 
 const badgeColor = (status) => {
   switch (status) {
-    case 'Open': return 'bg-blue-100 text-blue-800';
-    case 'In Progress': return 'bg-yellow-100 text-yellow-800';
-    case 'Escalated': return 'bg-red-100 text-red-700';
-    case 'Resolved': return 'bg-green-100 text-green-800';
-    case 'Closed': return 'bg-gray-200 text-gray-700';
-    case 'Pending Approval': return 'bg-purple-100 text-purple-800';
-    case 'Pending Manager Approval': return 'bg-purple-100 text-purple-800';
-    default: return 'bg-gray-100 text-gray-700';
+    case 'Open':
+      return 'bg-blue-100 text-blue-800';
+    case 'In Progress':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'Escalated':
+      return 'bg-orange-100 text-orange-800';
+    case 'Pending Manager Approval':
+      return 'bg-purple-100 text-purple-800';
+    case 'Manager Approved':
+      return 'bg-indigo-100 text-indigo-800';
+    case 'Resolved':
+      return 'bg-green-100 text-green-800';
+    case 'Closed':
+      return 'bg-red-100 text-red-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
   }
 };
 
@@ -24,7 +32,7 @@ const ComplaintDetails = () => {
 
   if (!complaint) {
     return (
-      <div className="p-6 text-center text-red-600 font-medium">
+      <div className="p-4 text-center text-red-600 font-medium">
         Complaint not found.
       </div>
     );
@@ -88,6 +96,29 @@ const ComplaintDetails = () => {
     router.visit(`/escalated-complaint/${complaint.id}/request-manager-approval`);
   };
 
+  const handleApproveByManager = async () => {
+    try {
+      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      const response = await fetch(`/complaints/${complaint.id}/approve-by-manager`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-TOKEN': token,
+        },
+      });
+      const result = await response.json();
+      if (result.success || response.redirected || response.ok) {
+        alert('Complaint approved by manager. Ready for Level 2 completion.');
+        window.location.reload();
+      } else {
+        alert(result.message || 'Failed to approve complaint.');
+      }
+    } catch (error) {
+      alert('Failed to approve complaint.');
+    }
+  };
+
   const handleReject = async () => {
     if (!rejectionReason.trim()) return alert('Please enter a reason to reject.');
     try {
@@ -116,16 +147,16 @@ const ComplaintDetails = () => {
   };
 
   return (
-    <div className="w-full py-8 px-4 md:px-16 bg-gray-50 min-h-screen">
+    <div className="w-full py-4 px-2 md:px-8 bg-gray-50 min-h-screen">
       <div className="max-w-3xl mx-auto">
-        <div className="mb-4">
-          <Link href="/complaints" className="text-blue-600 underline hover:text-blue-800">← Back to Complaints List</Link>
+        <div className="mb-3">
+          <Link href="/complaints" className="text-blue-600 underline hover:text-blue-800 text-sm">← Back to Complaints List</Link>
         </div>
-        <div className="bg-white rounded-2xl shadow-xl p-8 space-y-8">
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 space-y-4">
           {/* Title and Meta */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b pb-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b pb-3">
             <div>
-              <h2 className="text-2xl font-bold text-[var(--dark-black-color)] mb-1">{complaint.title}</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-[var(--dark-black-color)] mb-1">{complaint.title}</h2>
               <div className="flex flex-wrap gap-2 items-center">
                 <span className="text-xs text-gray-500">ID: {complaint.complaint_id || complaint.id}</span>
                 <span className={`text-xs px-2 py-1 rounded-full font-semibold ${badgeColor(complaint.status)}`}>{complaint.status}</span>
@@ -133,23 +164,23 @@ const ComplaintDetails = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500">Submitted: {complaint.submittedDate}</div>
+              <div className="text-xs text-gray-500">Submitted: {complaint.submittedDate}</div>
             </div>
           </div>
 
           {/* Contact & Meta Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <div><span className="font-semibold text-gray-900">Name:</span> <span className="text-gray-900">{complaint.name}</span></div>
-              <div><span className="font-semibold text-gray-900">Email:</span> <span className="text-gray-900">{complaint.email}</span></div>
-              <div><span className="font-semibold text-gray-900">Contact:</span> <span className="text-gray-900">{complaint.contact}</span></div>
-              <div><span className="font-semibold text-gray-900">Branch:</span> <span className="text-gray-900">{complaint.branch}</span></div>
-              <div><span className="font-semibold text-gray-900">Type:</span> <span className="text-gray-900">{complaint.type}</span></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <div className="text-sm"><span className="font-semibold text-gray-900">Name:</span> <span className="text-gray-900">{complaint.name}</span></div>
+              <div className="text-sm"><span className="font-semibold text-gray-900">Email:</span> <span className="text-gray-900">{complaint.email}</span></div>
+              <div className="text-sm"><span className="font-semibold text-gray-900">Contact:</span> <span className="text-gray-900">{complaint.contact}</span></div>
+              <div className="text-sm"><span className="font-semibold text-gray-900">Branch:</span> <span className="text-gray-900">{complaint.branch}</span></div>
+              <div className="text-sm"><span className="font-semibold text-gray-900">Type:</span> <span className="text-gray-900">{complaint.type}</span></div>
             </div>
-            <div className="space-y-2">
-              <div><span className="font-semibold text-gray-700">Assigned Agent:</span> {assignedAgent || <span className="italic text-gray-400">Not Assigned</span>}</div>
+            <div className="space-y-1">
+              <div className="text-sm"><span className="font-semibold text-gray-700">Assigned Agent:</span> {assignedAgent || <span className="italic text-gray-400">Not Assigned</span>}</div>
               {complaint.resolutionMessage && (
-                <div className="text-green-700 font-medium">
+                <div className="text-green-700 font-medium text-sm">
                   <span className="font-semibold">Resolution:</span> {complaint.resolutionMessage}
                 </div>
               )}
@@ -157,16 +188,16 @@ const ComplaintDetails = () => {
           </div>
 
           {/* Description */}
-          <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-            <h3 className="text-lg font-semibold mb-2 text-[var(--orange-color)]">Complaint Description</h3>
-            <p className="text-gray-700 whitespace-pre-line">{complaint.description}</p>
+          <div className="bg-gray-50 p-3 md:p-4 rounded-lg border border-gray-200">
+            <h3 className="text-base md:text-lg font-semibold mb-2 text-[var(--orange-color)]">Complaint Description</h3>
+            <p className="text-gray-700 whitespace-pre-line text-sm">{complaint.description}</p>
           </div>
 
           {/* ACTION BUTTONS */}
-          <div className="pt-4 border-t">
+          <div className="pt-3 border-t">
             {/* Role-based action buttons */}
             {user?.role !== 'user' && (
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-2 md:gap-3">
                 {/* Assign to Me: all except user */}
                 {(user?.role === 'manager' && complaint.requires_manager_approval && complaint.level === 3) || 
                  (!assignedAgent && user?.role !== 'manager') || 
@@ -174,7 +205,7 @@ const ComplaintDetails = () => {
                   <button
                     onClick={handleAssign}
                     disabled={assigning}
-                    className={`bg-blue-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-blue-700 transition ${assigning ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`bg-blue-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-blue-700 transition ${assigning ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {assigning ? 'Assigning...' : 'Assign to Me'}
                   </button>
@@ -184,7 +215,7 @@ const ComplaintDetails = () => {
                 {(user?.role === 'admin' || user?.role === 'agent_level1') && (
                   <button
                     onClick={handleEscalate}
-                    className="bg-yellow-500 text-white font-semibold px-5 py-2 rounded-md hover:bg-yellow-600 transition"
+                    className="bg-yellow-500 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-yellow-600 transition"
                   >
                     Escalate Complaint
                   </button>
@@ -193,38 +224,47 @@ const ComplaintDetails = () => {
                 {(user?.role === 'admin' || user?.role === 'agent_level2') && (
                   <button
                     onClick={handleRequestManagerApproval}
-                    className="bg-purple-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-purple-700 transition"
+                    className="bg-purple-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-purple-700 transition"
                   >
                     Request Manager Approval
+                  </button>
+                )}
+                {/* Approve by Manager: manager, admin */}
+                {(user?.role === 'manager' || user?.role === 'admin') && complaint.level === 3 && complaint.requires_manager_approval && (
+                  <button
+                    onClick={handleApproveByManager}
+                    className="bg-indigo-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-indigo-700 transition"
+                  >
+                    Approve by Manager
                   </button>
                 )}
                 {/* Mark as Completed: all except user */}
                 <button
                   onClick={handleComplete}
-                  className="bg-green-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-green-700 transition"
+                  className="bg-green-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-green-700 transition"
                 >
                   Mark as Completed
                 </button>
                 {/* Reject: all except user */}
                 <button
                   onClick={() => setShowRejectReason((prev) => !prev)}
-                  className="bg-red-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-red-700 transition"
+                  className="bg-red-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-red-700 transition"
                 >
                   Reject Complaint
                 </button>
               </div>
             )}
             {showRejectReason && user?.role !== 'user' && (
-              <div className="mt-4">
+              <div className="mt-3">
                 <textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   placeholder="Enter rejection reason..."
-                  className="w-full border border-gray-300 rounded-md text-black px-4 py-2 mb-2 mt-2"
+                  className="w-full border border-gray-300 rounded text-black px-3 py-2 mb-2 text-sm"
                 />
                 <button
                   onClick={handleReject}
-                  className="bg-red-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-red-700 transition"
+                  className="bg-red-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-red-700 transition"
                 >
                   Confirm Rejection
                 </button>

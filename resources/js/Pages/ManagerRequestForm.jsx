@@ -125,9 +125,9 @@ const ManagerRequestForm = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-10 px-4">
-        <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-8 md:p-12 border border-gray-200">
-          <div className="text-center">Loading complaint data...</div>
+      <div className="min-h-screen bg-gray-50 py-6 px-4">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <div className="text-center text-sm">Loading complaint data...</div>
         </div>
       </div>
     );
@@ -135,66 +135,66 @@ const ManagerRequestForm = () => {
 
   if (!complaint) {
     return (
-      <div className="min-h-screen bg-gray-50 py-10 px-4">
-        <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-8 md:p-12 border border-gray-200">
-          <div className="text-center text-red-600">Complaint not found.</div>
+      <div className="min-h-screen bg-gray-50 py-6 px-4">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <div className="text-center text-red-600 text-sm">Complaint not found.</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-8 md:p-12 border border-gray-200">
-        <div className="mb-10">
-          <h1 className="text-3xl font-extrabold text-gray-800 mb-2">📝 Request Manager Approval</h1>
-          <p className="text-gray-500 text-sm">
+    <div className="min-h-screen bg-gray-50 py-6 px-4">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-1">📝 Request Manager Approval</h1>
+          <p className="text-gray-500 text-xs">
             Submit a formal request for managerial approval with all required complaint details and justifications.
           </p>
         </div>
 
         {/* Request Info */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">📌 Request Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mb-6">
+          <h2 className="text-base font-semibold text-gray-700 mb-3">📌 Request Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Request Title</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Request Title</label>
               <input
                 type="text"
                 name="requestTitle"
                 value={formData.requestTitle}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-black"
+                className="w-full px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400 text-black text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Request Date/Time</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Request Date/Time</label>
               <input
                 type="datetime-local"
                 name="requestDateTime"
                 value={formData.requestDateTime}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-black"
+                className="w-full px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400 text-black text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Related Complaint ID</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Related Complaint ID</label>
               <input
                 type="text"
                 value={complaint.complaint_id || complaint.id}
                 readOnly
-                className="w-full px-4 py-2 border border-gray-200 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
+                className="w-full px-3 py-1.5 border border-gray-200 rounded bg-gray-100 text-gray-500 cursor-not-allowed text-sm"
               />
             </div>
           </div>
         </div>
 
         {/* Submitted By */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">👤 Submitted By</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-700">
+        <div className="mb-6">
+          <h2 className="text-base font-semibold text-gray-700 mb-2">👤 Submitted By</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-700 text-sm">
             <p><span className="font-medium">Name:</span> {user?.name || 'N/A'}</p>
             <p><span className="font-medium">Role:</span> {user?.role || 'N/A'}</p>
             <p><span className="font-medium">Branch:</span> {complaint.branch || 'N/A'}</p>
@@ -202,9 +202,9 @@ const ManagerRequestForm = () => {
         </div>
 
         {/* Complaint Details */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">📄 Complaint Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+        <div className="mb-6">
+          <h2 className="text-base font-semibold text-gray-700 mb-2">📄 Complaint Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 text-sm">
             <p><span className="font-medium">Title:</span> {complaint.title}</p>
             <p><span className="font-medium">Description:</span> {complaint.description}</p>
             <p><span className="font-medium">Priority:</span> {complaint.priority}</p>
@@ -217,16 +217,16 @@ const ManagerRequestForm = () => {
         </div>
 
         {/* Approval Request Details */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">📋 Approval Request Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mb-6">
+          <h2 className="text-base font-semibold text-gray-700 mb-3">📋 Approval Request Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Category</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-black"
+                className="w-full px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400 text-black text-sm"
               >
                 <option value="">Select Category</option>
                 <option value="Technical Issue">Technical Issue</option>
@@ -239,12 +239,12 @@ const ManagerRequestForm = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Priority Level</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Priority Level</label>
               <select
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-black"
+                className="w-full px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400 text-black text-sm"
               >
                 <option value="">Select Priority</option>
                 <option value="Low">Low</option>
@@ -257,30 +257,30 @@ const ManagerRequestForm = () => {
         </div>
 
         {/* Reason */}
-        <div className="mb-8">
-          <label className="block text-sm font-medium text-gray-700 mb-1">🛠️ Reason for Requesting Approval</label>
+        <div className="mb-6">
+          <label className="block text-xs font-medium text-gray-700 mb-1">🛠️ Reason for Requesting Approval</label>
           <textarea
             name="reason"
             value={formData.reason}
             onChange={handleChange}
             placeholder="Explain why this needs manager approval..."
-            rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-black"
+            rows={3}
+            className="w-full px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400 text-black text-sm"
             required
           />
         </div>
 
         {/* Additional Information */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">📝 Additional Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mb-6">
+          <h2 className="text-base font-semibold text-gray-700 mb-3">📝 Additional Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Estimated Resolution Time</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Estimated Resolution Time</label>
               <select
                 name="estimatedResolution"
                 value={formData.estimatedResolution}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-black"
+                className="w-full px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400 text-black text-sm"
               >
                 <option value="">Select Timeframe</option>
                 <option value="1-2 hours">1-2 hours</option>
@@ -292,42 +292,42 @@ const ManagerRequestForm = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Attachments/References</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Attachments/References</label>
               <input
                 type="text"
                 name="attachments"
                 value={formData.attachments}
                 onChange={handleChange}
                 placeholder="List any attachments or reference numbers"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-black"
+                className="w-full px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400 text-black text-sm"
               />
             </div>
           </div>
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-600 mb-1">Additional Notes</label>
+          <div className="mt-3">
+            <label className="block text-xs font-medium text-gray-600 mb-1">Additional Notes</label>
             <textarea
               name="additionalNotes"
               value={formData.additionalNotes}
               onChange={handleChange}
               placeholder="Any additional information or context..."
-              rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-black"
+              rows={2}
+              className="w-full px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400 text-black text-sm"
             />
           </div>
         </div>
 
         {/* Manager Approval Actions */}
-        <div className="flex justify-end gap-4 mt-8">
+        <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={handleCancel}
-            className="px-6 py-2 border border-gray-400 rounded-md text-gray-600 hover:bg-gray-100 transition"
+            className="px-4 py-1.5 border border-gray-400 rounded text-gray-600 hover:bg-gray-100 transition text-sm"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="px-6 py-2 bg-orange-600 text-white font-semibold rounded-md hover:bg-orange-700 transition disabled:opacity-50"
+            className="px-4 py-1.5 bg-orange-600 text-white font-semibold rounded hover:bg-orange-700 transition disabled:opacity-50 text-sm"
           >
             {submitting ? 'Submitting...' : 'Submit Request'}
           </button>
