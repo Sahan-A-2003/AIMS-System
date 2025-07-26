@@ -8,6 +8,8 @@ const badgeColor = (status) => {
     case 'Escalated': return 'bg-red-100 text-red-700';
     case 'Resolved': return 'bg-green-100 text-green-800';
     case 'Closed': return 'bg-gray-200 text-gray-700';
+    case 'Pending Approval': return 'bg-purple-100 text-purple-800';
+    case 'Pending Manager Approval': return 'bg-purple-100 text-purple-800';
     default: return 'bg-gray-100 text-gray-700';
   }
 };
@@ -54,26 +56,8 @@ const ComplaintDetails = () => {
   };
 
   const handleEscalate = async () => {
-    try {
-      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-      const response = await fetch(`/complaints/${complaint.id}/escalate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRF-TOKEN': token,
-        },
-      });
-      const result = await response.json();
-      if (result.success || response.redirected || response.ok) {
-        alert('Complaint escalated to Level 2.');
-        window.location.reload();
-      } else {
-        alert(result.message || 'Failed to escalate complaint.');
-      }
-    } catch (error) {
-      alert('Failed to escalate complaint.');
-    }
+    // Redirect to escalation form
+    router.visit(`/escalation-form/${complaint.id}`);
   };
 
   const handleComplete = async () => {
@@ -100,26 +84,8 @@ const ComplaintDetails = () => {
   };
 
   const handleRequestManagerApproval = async () => {
-    try {
-      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-      const response = await fetch(`/complaints/${complaint.id}/request-manager-approval`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRF-TOKEN': token,
-        },
-      });
-      const result = await response.json();
-      if (result.success || response.redirected || response.ok) {
-        alert('Complaint sent for manager approval.');
-        window.location.reload();
-      } else {
-        alert(result.message || 'Failed to send for manager approval.');
-      }
-    } catch (error) {
-      alert('Failed to send for manager approval.');
-    }
+    // Redirect to manager request form
+    router.visit(`/escalated-complaint/${complaint.id}/request-manager-approval`);
   };
 
   const handleReject = async () => {
@@ -202,13 +168,18 @@ const ComplaintDetails = () => {
             {user?.role !== 'user' && (
               <div className="flex flex-wrap gap-4">
                 {/* Assign to Me: all except user */}
-                <button
-                  onClick={handleAssign}
-                  disabled={assigning || assignedAgent}
-                  className={`bg-blue-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-blue-700 transition ${assigning || assignedAgent ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {assignedAgent ? 'Assigned' : assigning ? 'Assigning...' : 'Assign to Me'}
-                </button>
+                {(user?.role === 'manager' && complaint.requires_manager_approval && complaint.level === 3) || 
+                 (!assignedAgent && user?.role !== 'manager') || 
+                 (assignedAgent && user?.role !== 'manager') ? (
+                  <button
+                    onClick={handleAssign}
+                    disabled={assigning}
+                    className={`bg-blue-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-blue-700 transition ${assigning ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {assigning ? 'Assigning...' : 'Assign to Me'}
+                  </button>
+                ) : null}
+                
                 {/* Escalate: admin, agent_level1 */}
                 {(user?.role === 'admin' || user?.role === 'agent_level1') && (
                   <button

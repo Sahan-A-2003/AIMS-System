@@ -22,12 +22,22 @@ const Complaints = () => {
   useEffect(() => {
     fetchComplaints(pagination.current_page);
     // eslint-disable-next-line
-  }, [pagination.current_page]);
+  }, [pagination.current_page, user?.role]);
 
   const fetchComplaints = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await fetch(`/complaints-paginated?page=${page}`);
+      // Use different endpoints based on user role
+      let endpoint;
+      if (user?.role === 'user') {
+        endpoint = `/user-complaints?user_id=${user.id}&page=${page}`;
+      } else if (user?.role === 'manager') {
+        endpoint = `/complaints-pending-manager-approval?page=${page}`;
+      } else {
+        endpoint = `/complaints-paginated?page=${page}`;
+      }
+      
+      const response = await fetch(endpoint);
       const data = await response.json();
       setComplaints(data.data);
       setPagination({
@@ -57,26 +67,31 @@ const Complaints = () => {
 
   const stats = [
     {
-      title: 'Total Complaints Assigned',
-      count: 42,
+      title: user?.role === 'user' ? 'Total Complaints Submitted' : 
+             user?.role === 'manager' ? 'Complaints Pending Approval' : 'Total Complaints Assigned',
+      count: user?.role === 'user' ? complaints.length : 
+             user?.role === 'manager' ? complaints.length : 42,
       icon: <FaInbox className="text-blue-600 text-3xl" />,
       bg: 'bg-blue-100',
     },
     {
       title: 'Complaints In Progress',
-      count: 12,
+      count: user?.role === 'user' ? complaints.filter(c => c.status === 'In Progress').length : 
+             user?.role === 'manager' ? complaints.filter(c => c.status === 'Pending Manager Approval').length : 12,
       icon: <FaTools className="text-yellow-600 text-3xl" />,
       bg: 'bg-yellow-100',
     },
     {
       title: 'Complaints Escalated',
-      count: 3,
+      count: user?.role === 'user' ? complaints.filter(c => c.status === 'Escalated').length : 
+             user?.role === 'manager' ? complaints.filter(c => c.level === 3).length : 3,
       icon: <FaArrowUp className="text-red-600 text-3xl" />,
       bg: 'bg-red-100',
     },
     {
       title: 'Resolved Complaints',
-      count: 20,
+      count: user?.role === 'user' ? complaints.filter(c => c.status === 'Resolved').length : 
+             user?.role === 'manager' ? complaints.filter(c => c.status === 'Resolved').length : 20,
       icon: <FaCheckCircle className="text-green-600 text-3xl" />,
       bg: 'bg-green-100',
     },
@@ -123,7 +138,7 @@ const Complaints = () => {
 
       <div className="mt-10">
       <h2 data-aos="fade-up" className="text-xl font-semibold mb-4 text-[var(--dark-black-color)]">
-        Assigned Complaints
+        {user?.role === 'user' ? 'My Complaints' : 'Assigned Complaints'}
       </h2>
 
       {/* Filters */}
@@ -221,7 +236,7 @@ const Complaints = () => {
                       {complaint.priority}
                     </span>
                   </td>
-                  <td className="px-4 py-2 border-b">{complaint.assigned_agent && complaint.assigned_agent.name ? complaint.assigned_agent.name : ''}</td>
+                  <td className="px-4 py-2 border-b">{complaint.assigned_agent && complaint.assigned_agent.name ? complaint.assigned_agent.name : 'Not Assigned'}</td>
                   <td className="px-4 py-2 border-b">
                     <Link
                       href={`/complaints/${complaint.id}`}

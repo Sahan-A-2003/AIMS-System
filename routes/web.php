@@ -31,6 +31,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/submit-complaint', [ComplaintController::class, 'store'])->name('submit-complaint.store');
     Route::get('/complaints/{complaint_id}', [ComplaintController::class, 'show']);
     Route::get('/complaints/{id}/escalate', [ComplaintController::class, 'escalate'])->name('complaint.escalate');
+    Route::post('/complaints/{id}/escalate', [ComplaintController::class, 'escalate'])->name('complaint.escalate.post');
+    Route::post('/complaints/{id}/complete', [ComplaintController::class, 'complete'])->name('complaint.complete');
+    Route::post('/complaints/{id}/request-manager-approval', [ComplaintController::class, 'requestManagerApproval'])->name('complaint.request-manager-approval');
+    Route::post('/complaints/{id}/reject', [ComplaintController::class, 'reject'])->name('complaint.reject');
 });
 
 // Allow complaints-data without auth for testing
@@ -114,6 +118,11 @@ Route::get('/escalated-complaint/{id}/request-manager-approval', function ($id) 
     return Inertia::render('ManagerRequestForm', ['id' => $id]);
 })->name('escalated-complaint.requestManagerApproval');
 
+// Escalation form route
+Route::get('/escalation-form/{id}', function ($id) {
+    return Inertia::render('EscalationForm', ['id' => $id]);
+})->name('escalation-form');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -183,14 +192,44 @@ Route::get('/test-complaint', function () {
     }
 });
 
+// Test email notifications
+Route::get('/test-email-notifications', function () {
+    try {
+        $complaint = App\Models\Complaint::first();
+        if (!$complaint) {
+            return response()->json(['status' => 'error', 'message' => 'No complaints found']);
+        }
+        
+        $notificationService = new App\Services\ComplaintNotificationService();
+        
+        // Test submitted notification
+        $result = $notificationService->sendComplaintSubmittedNotification($complaint);
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Email notification test completed',
+            'email_sent' => $result,
+            'complaint_id' => $complaint->complaint_id
+        ]);
+    } catch (Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+});
+
 // Paginated complaints endpoint
 Route::get('/complaints-paginated', [ComplaintController::class, 'paginatedComplaints']);
 
 // User complaints endpoint
 Route::get('/user-complaints', [ComplaintController::class, 'getUserComplaints']);
 
+// Complaints pending manager approval endpoint
+Route::get('/complaints-pending-manager-approval', [ComplaintController::class, 'getComplaintsPendingManagerApproval']);
+
 // Get complaint by ID as JSON (for tracking)
 Route::get('/complaint-data/{id}', [ComplaintController::class, 'getComplaintById']);
+
+// Get complaint by database ID as JSON (for escalation form)
+Route::get('/complaint-db/{id}', [ComplaintController::class, 'getComplaintByDbId']);
 
 // Assign complaint to current user
 Route::post('/complaints/{id}/assign-to-me', [ComplaintController::class, 'assignToMe'])->middleware('auth');

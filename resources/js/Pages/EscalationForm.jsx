@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePage, router } from '@inertiajs/react';
 
 const EscalationForm = () => {
@@ -6,34 +6,118 @@ const EscalationForm = () => {
   const { auth } = usePage().props;
   const user = auth.user;
 
+  const [complaint, setComplaint] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
   const [formData, setFormData] = useState({
-    owner: '',
+    owner: user?.name || '',
     title: '',
     description: '',
     type: '',
     priority: '',
     category: '',
+    escalation_reason: '',
   });
+
+  // Fetch complaint data on component mount
+  useEffect(() => {
+    const fetchComplaint = async () => {
+      try {
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch(`/complaint-db/${id}`, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': token,
+          },
+        });
+        
+        if (response.ok) {
+          const complaintData = await response.json();
+          setComplaint(complaintData);
+          // Pre-fill form with complaint data
+          setFormData(prev => ({
+            ...prev,
+            title: complaintData.title || '',
+            description: complaintData.description || '',
+            type: complaintData.type || '',
+            priority: complaintData.priority || '',
+          }));
+        } else {
+          alert('Failed to load complaint data');
+        }
+      } catch (error) {
+        console.error('Error fetching complaint:', error);
+        alert('Failed to load complaint data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchComplaint();
+    }
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Complaint Escalated!\n\n${JSON.stringify(formData, null, 2)}`);
-    // You can add your Inertia POST/PUT request here
+    setSubmitting(true);
+    
+    try {
+      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      const response = await fetch(`/complaints/${id}/escalate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-TOKEN': token,
+        },
+        body: JSON.stringify({
+          escalation_reason: formData.escalation_reason,
+          category: formData.category,
+        }),
+      });
+      
+      if (response.ok) {
+        alert('Complaint escalated successfully!');
+        router.visit(`/complaints/${id}`);
+      } else {
+        const result = await response.json();
+        alert(result.message || 'Failed to escalate complaint');
+      }
+    } catch (error) {
+      console.error('Error escalating complaint:', error);
+      alert('Failed to escalate complaint');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
-    router.visit(route('complaint.details', { id }));
+    router.visit(`/complaints/${id}`);
   };
+
+  if (loading) {
+    return (
+      <div className="w-full py-7 bg-white">
+        <div className="p-6 max-w-2xl bg-white mx-auto text-black rounded-2xl shadow-xl">
+          <div className="text-center">Loading complaint data...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full py-7 bg-white">
       <div className="p-6 max-w-2xl bg-white mx-auto text-black rounded-2xl shadow-xl">
         <h1 className="text-2xl font-bold mb-6 text-[var(--dark-black-color)]">
-          Escalate Complaint (ID: {id})
+          Escalate Complaint (ID: {complaint?.complaint_id || id})
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Escalation Owner */}
@@ -42,9 +126,9 @@ const EscalationForm = () => {
             <input
               type="text"
               name="owner"
-              value={user?.name}
+              value={formData.owner}
               readOnly
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
+              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
               required
             />
           </div>
@@ -56,22 +140,21 @@ const EscalationForm = () => {
               type="text"
               name="title"
               value={formData.title}
-              onChange={handleChange}
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
+              readOnly
+              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
               required
             />
           </div>
 
-          {/* Description */}
+          {/* Original Description */}
           <div className="flex flex-col md:flex-row md:items-start gap-2">
-            <label className="w-full md:w-1/3 font-medium pt-2">Description:</label>
+            <label className="w-full md:w-1/3 font-medium pt-2">Original Description:</label>
             <textarea
               name="description"
               value={formData.description}
-              onChange={handleChange}
+              readOnly
               rows={4}
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
-              placeholder="Provide description or reason for escalation"
+              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
               required
             />
           </div>
@@ -79,37 +162,41 @@ const EscalationForm = () => {
           {/* Complaint Type */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
             <label className="w-full md:w-1/3 font-medium">Complaint Type:</label>
-            <select
+            <input
+              type="text"
               name="type"
               value={formData.type}
-              onChange={handleChange}
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
+              readOnly
+              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
               required
-            >
-              <option value="">Select Complaint Type</option>
-              <option value="Technical">Technical</option>
-              <option value="Billing">Billing</option>
-              <option value="Service">Service</option>
-              <option value="Account">Account</option>
-            </select>
+            />
           </div>
 
           {/* Priority */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
             <label className="w-full md:w-1/3 font-medium">Priority:</label>
-            <select
+            <input
+              type="text"
               name="priority"
               value={formData.priority}
-              onChange={handleChange}
-              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
+              readOnly
+              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
               required
-            >
-              <option value="">Select Priority</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-              <option value="Urgent">Urgent</option>
-            </select>
+            />
+          </div>
+
+          {/* Escalation Reason */}
+          <div className="flex flex-col md:flex-row md:items-start gap-2">
+            <label className="w-full md:w-1/3 font-medium pt-2">Escalation Reason:</label>
+            <textarea
+              name="escalation_reason"
+              value={formData.escalation_reason}
+              onChange={handleChange}
+              rows={4}
+              className="w-full md:w-2/3 border border-gray-300 rounded-md px-4 py-2"
+              placeholder="Provide reason for escalation"
+              required
+            />
           </div>
 
           {/* Category */}
@@ -126,6 +213,9 @@ const EscalationForm = () => {
               <option value="Login Issues">Login Issues</option>
               <option value="Payment Issues">Payment Issues</option>
               <option value="Support Request">Support Request</option>
+              <option value="Technical Issue">Technical Issue</option>
+              <option value="Billing Issue">Billing Issue</option>
+              <option value="Service Issue">Service Issue</option>
               <option value="Other">Other</option>
             </select>
           </div>
@@ -141,10 +231,11 @@ const EscalationForm = () => {
             </button>
             <button
               type="submit"
+              disabled={submitting}
               className="bg-[var(--orange-color)] text-white font-semibold px-5 py-2 rounded-md 
-                        hover:opacity-80 hover:text-black transition-all duration-300 ease-in-out"
+                        hover:opacity-80 hover:text-black transition-all duration-300 ease-in-out disabled:opacity-50"
             >
-              Escalate
+              {submitting ? 'Escalating...' : 'Escalate'}
             </button>
           </div>
         </form>

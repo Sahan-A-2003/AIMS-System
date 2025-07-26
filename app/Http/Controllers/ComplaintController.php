@@ -7,11 +7,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use App\Models\Complaint;
+use App\Models\User;
+use App\Services\ComplaintNotificationService;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 
 class ComplaintController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(ComplaintNotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function store(Request $request)
     {
         try {
@@ -85,6 +94,9 @@ class ComplaintController extends Controller
                 'complaint_id' => $complaint->id,
                 'complaint_number' => $complaint->complaint_id
             ]);
+
+            // Send notification email
+            $this->notificationService->sendComplaintSubmittedNotification($complaint);
 
             // Return success response
             return response()->json([
@@ -161,6 +173,17 @@ class ComplaintController extends Controller
         return response()->json($complaint);
     }
 
+    public function getComplaintByDbId($id)
+    {
+        $complaint = Complaint::with(['user', 'assignedAgent'])->find($id);
+
+        if (!$complaint) {
+            return response()->json(['error' => 'Complaint not found'], 404);
+        }
+
+        return response()->json($complaint);
+    }
+
     public function getInProgressCount($id)
     {
 
@@ -171,67 +194,166 @@ class ComplaintController extends Controller
         return response()->json(['count' => $count]);
     }
 
+    // Assign complaint to current user
     public function assignToMe($id)
     {
         $user = auth()->user();
         $complaint = Complaint::findOrFail($id);
 
-        // Only allow if not already assigned or assigned to this user
-        if ($complaint->assigned_agent_id && $complaint->assigned_agent_id !== $user->id) {
+        // Check if user can assign this complaint
+        $canAssign = false;
+        
+        // Managers can assign any complaint that is pending manager approval or unassigned
+        if ($user->role === 'manager') {
+            $canAssign = !$complaint->assigned_agent_id || 
+                        ($complaint->requires_manager_approval && $complaint->level === 3);
+        }
+        // Agents can only assign complaints that are not assigned or assigned to them
+        else {
+            $canAssign = !$complaint->assigned_agent_id || $complaint->assigned_agent_id === $user->id;
+        }
+
+        if (!$canAssign) {
             return response()->json(['success' => false, 'message' => 'Already assigned to another agent.'], 403);
         }
 
         $complaint->assigned_agent_id = $user->id;
-        // Set level based on agent role
+        
+        // Set level based on agent role and current complaint state
         if ($user->role === 'agent_level1') {
             $complaint->level = 1;
         } elseif ($user->role === 'agent_level2') {
             $complaint->level = 2;
+        } elseif ($user->role === 'manager') {
+            // If manager is assigning a complaint pending approval, keep it at level 3
+            if ($complaint->requires_manager_approval) {
+                $complaint->level = 3;
+            } else {
+                $complaint->level = 3; // Managers work at level 3
+            }
         }
+        
         $complaint->save();
 
         return response()->json(['success' => true, 'message' => 'Complaint assigned to you.', 'agent_name' => $user->name]);
     }
 
     // Escalate complaint to level 2
-    public function escalate($id)
+    public function escalate($id, Request $request)
     {
         $complaint = Complaint::findOrFail($id);
         $complaint->level = 2;
         $complaint->assigned_agent_id = null; // Unassign agent
         $complaint->status = 'Escalated';
+       
+        // Add escalation details if provided
+        if ($request->has('escalation_reason')) {
+            $complaint->escalation_reason = $request->escalation_reason;
+        }
+        if ($request->has('category')) {
+            $complaint->category = $request->category;
+        }
+        
         $complaint->save();
-        return redirect()->back()->with('success', 'Complaint escalated to Level 2.');
+       
+        // Send notification email
+        $this->notificationService->sendComplaintAssignedNotification($complaint, auth()->user());
+        
+        // Return appropriate response based on request method
+        if ($request->isMethod('post')) {
+            return response()->json(['success' => true, 'message' => 'Complaint escalated to Level 2.']);
+        } else {
+            return redirect()->back()->with('success', 'Complaint escalated to Level 2.');
+        }
     }
 
     // Mark complaint as completed (level 4)
-    public function complete($id)
+    public function complete($id, Request $request)
     {
         $complaint = Complaint::findOrFail($id);
         $complaint->level = 4;
         $complaint->status = 'Resolved';
         $complaint->save();
-        return redirect()->back()->with('success', 'Complaint marked as completed.');
+        
+        // Send notification email
+        $this->notificationService->sendComplaintApprovedNotification($complaint, auth()->user()->name);
+        
+        // Return appropriate response based on request method
+        if ($request->isMethod('post')) {
+            return response()->json(['success' => true, 'message' => 'Complaint marked as completed.']);
+        } else {
+            return redirect()->back()->with('success', 'Complaint marked as completed.');
+        }
     }
 
     // Send for manager approval (level 3)
-    public function requestManagerApproval($id)
+    public function requestManagerApproval($id, Request $request)
     {
         $complaint = Complaint::findOrFail($id);
         $complaint->level = 3;
+        $complaint->status = 'Pending Manager Approval';
         $complaint->requires_manager_approval = true;
+        $complaint->assigned_agent_id = null; // Unassign the complaint
+       
+        // Add approval request details if provided
+        if ($request->has('reason')) {
+            $complaint->approval_reason = $request->reason;
+        }
+        if ($request->has('request_title')) {
+            $complaint->approval_request_title = $request->request_title;
+        }
+        if ($request->has('category')) {
+            $complaint->approval_category = $request->category;
+        }
+        if ($request->has('priority')) {
+            $complaint->approval_priority = $request->priority;
+        }
+        if ($request->has('estimated_resolution')) {
+            $complaint->estimated_resolution = $request->estimated_resolution;
+        }
+        if ($request->has('additional_notes')) {
+            $complaint->additional_notes = $request->additional_notes;
+        }
+        if ($request->has('attachments')) {
+            $complaint->attachments = $request->attachments;
+        }
+        
         $complaint->save();
-        return redirect()->back()->with('success', 'Complaint sent for manager approval.');
+       
+        // Send notification email
+        $this->notificationService->sendComplaintApprovedNotification($complaint, auth()->user()->name);
+        
+        // Return appropriate response based on request method
+        if ($request->isMethod('post')) {
+            return response()->json(['success' => true, 'message' => 'Complaint sent for manager approval.']);
+        } else {
+            return redirect()->back()->with('success', 'Complaint sent for manager approval.');
+        }
     }
 
     // Reject complaint (level 9)
-    public function reject($id)
+    public function reject($id, Request $request)
     {
         $complaint = Complaint::findOrFail($id);
         $complaint->level = 9;
         $complaint->status = 'Closed';
+        
+        // Add rejection reason if provided
+        if ($request->has('reason')) {
+            $complaint->rejection_reason = $request->reason;
+        }
+        
         $complaint->save();
-        return redirect()->back()->with('success', 'Complaint rejected.');
+        
+        // Send notification email
+        $this->notificationService->sendComplaintRejectedNotification($complaint, auth()->user()->name);
+        
+        // Return appropriate response based on request method
+        if ($request->isMethod('post')) {
+            return response()->json(['success' => true, 'message' => 'Complaint rejected.']);
+        } else {
+            return redirect()->back()->with('success', 'Complaint rejected.');
+        }
     }
 
     // public function show($complaint_id)
@@ -281,6 +403,22 @@ class ComplaintController extends Controller
             'complaint' => $complaintData,
             'auth' => ['user' => auth()->user()],
         ]);
+    }
+
+    // Get complaints pending manager approval (for managers)
+    public function getComplaintsPendingManagerApproval(Request $request)
+    {
+        $page = $request->get('page', 1);
+        $perPage = 10;
+
+        $complaints = Complaint::with(['user', 'assignedAgent'])
+            ->where('requires_manager_approval', true)
+            ->where('level', 3)
+            ->where('status', 'Pending Manager Approval')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        return response()->json($complaints);
     }
 
 }

@@ -7,7 +7,7 @@ const SubmitComplaint = () => {
   const { user } = usePage().props.auth;
   const { data, setData, post, get, errors, reset, processing } = useForm({
     fullName: user?.username || '',
-    email: '',
+    email: user?.email || '',
     contactNumber: '',
     title: '',
     description: '',
@@ -33,7 +33,7 @@ const SubmitComplaint = () => {
     const fetchComplaints = async () => {
       try {
         const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        const response = await fetch('/complaints-data', {
+        const response = await fetch(`/user-complaints?user_id=${user?.id}`, {
           headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json',
@@ -43,7 +43,7 @@ const SubmitComplaint = () => {
         
         if (response.ok) {
           const data = await response.json();
-          setComplaints(data);
+          setComplaints(data.data || data); // Handle both paginated and non-paginated responses
         } else {
           console.error('Failed to load complaints:', response.status);
         }
@@ -52,8 +52,10 @@ const SubmitComplaint = () => {
       }
     };
 
-    fetchComplaints();
-  }, []);
+    if (user?.id) {
+      fetchComplaints();
+    }
+  }, [user?.id]);
 
   const handleChange = (e) => {
     setData(e.target.name, e.target.value);
@@ -62,6 +64,7 @@ const SubmitComplaint = () => {
   const handleClear = () => {
     reset();
     setData('fullName', user?.username || '');
+    setData('email', user?.email || '');
   };
 
   const handleSubmit = (e) => {
@@ -96,7 +99,7 @@ const SubmitComplaint = () => {
         // Refresh complaints list after successful submission
         const fetchComplaints = async () => {
           try {
-            const response = await fetch('/complaints-data', {
+            const response = await fetch(`/user-complaints?user_id=${user?.id}`, {
               headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
@@ -106,7 +109,7 @@ const SubmitComplaint = () => {
             
             if (response.ok) {
               const data = await response.json();
-              setComplaints(data);
+              setComplaints(data.data || data);
             }
           } catch (error) {
             console.error('Failed to refresh complaints', error);
@@ -168,13 +171,11 @@ const SubmitComplaint = () => {
               <input
                 type="email"
                 name="email"
-                placeholder="Enter your email"
                 value={data.email}
-                onChange={handleChange}
+                readOnly
                 required
-                className="border p-2 rounded w-full"
+                className="border p-2 rounded w-full bg-gray-100 cursor-not-allowed text-gray-700"
               />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
             <div>
               <label className="block mb-1 font-medium">Contact Number</label>
@@ -290,7 +291,7 @@ const SubmitComplaint = () => {
 
       {/* Complaint Table */}
       <div className="max-w-7xl text-black mx-auto p-6 bg-white rounded shadow">
-        <h2 className="text-2xl font-bold mb-6">Complaint List</h2>
+        <h2 className="text-2xl font-bold mb-6">My Complaints</h2>
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row md:items-center md:space-x-6 mb-6 space-y-4 md:space-y-0">
@@ -372,7 +373,7 @@ const SubmitComplaint = () => {
                         {complaint.priority}
                       </span>
                     </td>
-                    <td className="px-4 py-2 border-b">{complaint.assigned_agent && complaint.assigned_agent.name ? complaint.assigned_agent.name : ''}</td>
+                    <td className="px-4 py-2 border-b">{complaint.assigned_agent && complaint.assigned_agent.name ? complaint.assigned_agent.name : 'Not Assigned'}</td>
                     <td className="px-4 py-2 border-b">
                       <Link
                         
