@@ -310,7 +310,7 @@ const ReportsIndex = () => {
                   <select
                     value={filters.level}
                     onChange={(e) => handleFilterChange('level', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-black"
                   >
                     <option value="">All Levels</option>
                     <option value="0">Level 0 (New)</option>
@@ -327,7 +327,7 @@ const ReportsIndex = () => {
                   <select
                     value={filters.status}
                     onChange={(e) => handleFilterChange('status', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-black"
                   >
                     <option value="">All Statuses</option>
                     <option value="Open">Open</option>
@@ -342,7 +342,7 @@ const ReportsIndex = () => {
                   <select
                     value={filters.priority}
                     onChange={(e) => handleFilterChange('priority', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-black"
                   >
                     <option value="">All Priorities</option>
                     <option value="Low">Low</option>
@@ -357,7 +357,7 @@ const ReportsIndex = () => {
                   <select
                     value={filters.type}
                     onChange={(e) => handleFilterChange('type', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-black"
                   >
                     <option value="">All Types</option>
                     <option value="Technical">Technical</option>

@@ -178,7 +178,7 @@ const ComplaintDetails = () => {
               <div className="text-sm"><span className="font-semibold text-gray-900">Type:</span> <span className="text-gray-900">{complaint.type}</span></div>
             </div>
             <div className="space-y-1">
-              <div className="text-sm"><span className="font-semibold text-gray-700">Assigned Agent:</span> {assignedAgent || <span className="italic text-gray-400">Not Assigned</span>}</div>
+              <div className="text-sm"><span className="font-semibold text-gray-700">Assigned Agent:</span> <span className="text-gray-900">{assignedAgent || <span className="italic text-gray-400">Not Assigned</span>}</span></div>
               {complaint.resolutionMessage && (
                 <div className="text-green-700 font-medium text-sm">
                   <span className="font-semibold">Resolution:</span> {complaint.resolutionMessage}
@@ -211,47 +211,62 @@ const ComplaintDetails = () => {
                   </button>
                 ) : null}
                 
-                {/* Escalate: admin, agent_level1 */}
-                {(user?.role === 'admin' || user?.role === 'agent_level1') && (
-                  <button
-                    onClick={handleEscalate}
-                    className="bg-yellow-500 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-yellow-600 transition"
-                  >
-                    Escalate Complaint
-                  </button>
+                {/* Show other action buttons only if user is assigned or has higher privileges */}
+                {((user?.role === 'admin' || user?.role === 'manager') || 
+                  (assignedAgent && (user?.role === 'agent_level1' || user?.role === 'agent_level2'))) && (
+                  <>
+                    {/* Escalate: admin, agent_level1 */}
+                    {(user?.role === 'admin' || user?.role === 'agent_level1') && (
+                      <button
+                        onClick={handleEscalate}
+                        className="bg-yellow-500 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-yellow-600 transition"
+                      >
+                        Escalate Complaint
+                      </button>
+                    )}
+                    {/* Request Manager Approval: admin, agent_level2 */}
+                    {(user?.role === 'admin' || user?.role === 'agent_level2') && (
+                      <button
+                        onClick={handleRequestManagerApproval}
+                        className="bg-purple-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-purple-700 transition"
+                      >
+                        Request Manager Approval
+                      </button>
+                    )}
+                    {/* Approve by Manager: manager, admin */}
+                    {(user?.role === 'manager' || user?.role === 'admin') && complaint.level === 3 && complaint.requires_manager_approval && (
+                      <button
+                        onClick={handleApproveByManager}
+                        className="bg-indigo-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-indigo-700 transition"
+                      >
+                        Approve by Manager
+                      </button>
+                    )}
+                    {/* Mark as Completed: all except user */}
+                    <button
+                      onClick={handleComplete}
+                      className="bg-green-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-green-700 transition"
+                    >
+                      Mark as Completed
+                    </button>
+                    {/* Reject: all except user */}
+                    <button
+                      onClick={() => setShowRejectReason((prev) => !prev)}
+                      className="bg-red-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-red-700 transition"
+                    >
+                      Reject Complaint
+                    </button>
+                  </>
                 )}
-                {/* Request Manager Approval: admin, agent_level2 */}
-                {(user?.role === 'admin' || user?.role === 'agent_level2') && (
-                  <button
-                    onClick={handleRequestManagerApproval}
-                    className="bg-purple-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-purple-700 transition"
-                  >
-                    Request Manager Approval
-                  </button>
+                
+                {/* Show warning message for unassigned agents */}
+                {(user?.role === 'agent_level1' || user?.role === 'agent_level2') && !assignedAgent && (
+                  <div className="w-full mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <p className="text-yellow-800 text-sm">
+                      ⚠️ You must assign this complaint to yourself before performing any actions.
+                    </p>
+                  </div>
                 )}
-                {/* Approve by Manager: manager, admin */}
-                {(user?.role === 'manager' || user?.role === 'admin') && complaint.level === 3 && complaint.requires_manager_approval && (
-                  <button
-                    onClick={handleApproveByManager}
-                    className="bg-indigo-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-indigo-700 transition"
-                  >
-                    Approve by Manager
-                  </button>
-                )}
-                {/* Mark as Completed: all except user */}
-                <button
-                  onClick={handleComplete}
-                  className="bg-green-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-green-700 transition"
-                >
-                  Mark as Completed
-                </button>
-                {/* Reject: all except user */}
-                <button
-                  onClick={() => setShowRejectReason((prev) => !prev)}
-                  className="bg-red-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-red-700 transition"
-                >
-                  Reject Complaint
-                </button>
               </div>
             )}
             {showRejectReason && user?.role !== 'user' && (
